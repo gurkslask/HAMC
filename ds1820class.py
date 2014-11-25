@@ -97,7 +97,7 @@ class Write_temp():
             '28-00000523ab8e': 'SUN_GT1',
             '28-0000052361be': 'SUN_GT2'}
 
-    def SQL_main(self):
+    def main(self):
         conn = lite.connect('data.db')
         with conn:
             cur = conn.cursor()
@@ -119,7 +119,7 @@ class Write_temp():
 
             cur.execute("INSERT INTO " + str(self.name_dikt[self.name]) + " VALUES(?,?)", (int(time.time()), str(self.value)))
 
-    def main(self):
+    def sensor_main(self):
         if self.file_date < time.time() - 86400:
             # if the file_date is more than 24 hours old, make a 'new' file date with actual time
             self.file_date = int(time.time())

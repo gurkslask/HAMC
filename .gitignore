@@ -6,7 +6,11 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+data.db
 .Python
+Docs/
+pickles/
+shared_dict
 env/
 build/
 develop-eggs/

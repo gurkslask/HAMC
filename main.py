@@ -102,8 +102,8 @@ class MainLoop():
         #Declare Flask shared dictionary
         self.shared_dict = {
             'komp': self.Komp.DictVarden,
-            self.VS1_CP1_Class.__dict__.Name: self.VS1_CP1_Class.__dict__,
-            self.VS1_CP2_Class.__dict__.Name: self.VS1_CP2_Class.__dict__
+            self.VS1_CP1_Class.Name: self.VS1_CP1_Class.__dict__,
+            self.VS1_CP2_Class.Name: self.VS1_CP2_Class.__dict__
             }
         self.choice = False
 
@@ -274,10 +274,10 @@ class MainLoop():
     def InteractWithFlask(self, choice):
         '''Dump shared_dict to a pickle, or load it'''
         if choice:
-            with open('Flask/shared_dict', 'wb+') as f:
+            with open('shared_dict', 'wb+') as f:
                 pickle.dump(self.shared_dict, f)
         elif not choice:
-            with open('Flask/shared_dict', 'rb') as f:
+            with open('shared_dict', 'rb') as f:
                 self.shared_dict.update(pickle.load(f))
 
 
