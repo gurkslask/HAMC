@@ -1,0 +1,3 @@
+Test och ny klass för ventil
+Test och ny klass för pump
+Debugger?
