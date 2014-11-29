@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from threading import Timer
+import datetime as dt
 
 
 class OpenCloseValve(object):
@@ -18,6 +19,7 @@ class OpenCloseValve(object):
         self.Time_Close = 3.0  # Seconds the valve shall close
 
     def man(self, direction, io_dict):
+        self.WriteDoc(direction)
         if direction == 'open':
             #Set variable
             io_dict[self.Open_IO]['Value'] = True
@@ -41,6 +43,14 @@ class OpenCloseValve(object):
 
     def SetIOdict(self, io, value, io_dict):
         io_dict[io]['Value'] = value
+
+    def WriteDoc(self, msg):
+        with open('Docs/{}'.format(self.Name), 'a+') as f:
+            f.write('Time: {}, direction: {} \n'.format(
+                dt.datetime.now(),
+                msg
+                )
+            )
 
     def main(self, PV, SP, io_dict):
         '''In this method the temperatures
