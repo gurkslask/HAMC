@@ -86,7 +86,6 @@ class Write_temp():
     Value of the signal and name that is should be stored'''
 
     def __init__(self, value, name):
-        self.path = '/home/pi/Projects/Home-automation/sensors/' + str(name) + '/'
         self.value = value
         self.file_date = int(time.time())
         self.name = name
@@ -99,6 +98,8 @@ class Write_temp():
 
     def main(self):
         conn = lite.connect('data.db')
+        if self.name is 'VS1_Setpoint':
+            print('Loggin: {} \n'.format(self.value))
         with conn:
             cur = conn.cursor()
 
@@ -106,7 +107,7 @@ class Write_temp():
             if self.name in self.name_dikt:
                 pass
             else:
-                self.name_dikt[self.name] = [self.name]
+                self.name_dikt[self.name] = self.name
 
             #Check if the column exists, if it doesnt create a new one
             try:
@@ -117,24 +118,27 @@ class Write_temp():
                     CREATE TABLE {} (Time TEXT, Temp REAL)'''.format(
                             str(self.name_dikt[self.name])))
 
-            cur.execute("INSERT INTO " + str(self.name_dikt[self.name]) + " VALUES(?,?)", (int(time.time()), str(self.value)))
+            cur.execute("INSERT INTO {} VALUES({},{})".format(
+                str(self.name_dikt[self.name]),
+                int(time.time()),
+                str(self.value)))
 
-    def sensor_main(self):
+    '''def sensor_main(self):
         if self.file_date < time.time() - 86400:
-            # if the file_date is more than 24 hours old, make a 'new' file date with actual time
+            # if the file_date is more than 24 hours old,
+            # make a 'new' file date with actual time
             self.file_date = int(time.time())
         if not os.path.exists(self.path):
             os.makedirs(self.path)
         with open(self.path + str(self.file_date), 'a+') as outfile:
             outfile.write(str(int(time.time())) + '|' + str(self.value) + '\n')
-        self.SQL_main()
-
+        self.SQL_main()'''
 
 
 class DegreeDays(object):
     """docstring for ClassName
-    This class shall store todays temperature, one log per minute 
-    and then calculate the median and then calculate the amount of 
+    This class shall store todays temperature, one log per minute
+    and then calculate the median and then calculate the amount of
     DegreeDays
 
 
@@ -155,9 +159,3 @@ class DegreeDays(object):
             11: 17,
             12: 17,
         }
-
-def DegreeDays():
-    ''' A function that once a day calculate the median temperature of today and the amount
-    of DegreeDays returned are the "17 - median temperature" '''
-    # MedianTemperature =
-    pass
