@@ -98,8 +98,6 @@ class Write_temp():
 
     def main(self):
         conn = lite.connect('data.db')
-        if self.name is 'VS1_Setpoint':
-            print('Loggin: {} \n'.format(self.value))
         with conn:
             cur = conn.cursor()
 

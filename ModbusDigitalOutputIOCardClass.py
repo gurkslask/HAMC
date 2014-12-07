@@ -21,10 +21,10 @@ class ModbusDigitalOutputIOCard():
         self.IOVariables = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
         self.client = client
         #List all of the variables that are declared for this IOdevice
-        self.IOlist = [(
+        self.IOlist = [
             i for i in self.IOdict
             if self.IOdict[i]['IOdevice'] == self.IOadress
-            )]
+            ]
 
     def BinToDec(self):
         '''
@@ -35,7 +35,7 @@ class ModbusDigitalOutputIOCard():
         '''
         #Take all the variables for this device and check their values
         for i in self.IOlist:
-            self.IOVariables[self.IOdict[i]['IOadress']] =  strtobool(str(self.IOdict[i]['Value']))
+            self.IOVariables[self.IOdict[i]['IOadress']] = strtobool(str(self.IOdict[i]['Value']))
         #Make the decimal numbers to a binary number, ie. 0110 = 6
         Bindata = ''
         for i in self.IOVariables:
