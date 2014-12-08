@@ -113,7 +113,8 @@ class MainLoop():
             'komp': self.Komp.DictVarden,
             self.VS1_CP1_Class.Name: self.VS1_CP1_Class.__dict__,
             self.VS1_CP2_Class.Name: self.VS1_CP2_Class.__dict__,
-            self.VS1_SV1_Class.Name: self.VS1_SV1_Class.__dict__
+            self.VS1_SV1_Class.Name: self.VS1_SV1_Class.__dict__,
+            'IOVariables': self.IOVariables
             }
         self.choice = False
 
