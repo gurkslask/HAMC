@@ -209,7 +209,7 @@ class MainLoop():
                         #self.SUN_GT1.temp)
                     #Run control of sun warming pump
                     self.VS1_CP2_Class.main(0)
-                    self.IOVariables['b_P2_DO']['Value'] = (
+                    self.IOVariables['b_VS1_CP2_DO']['Value'] = (
                         self.VS1_CP2_Class.Out)
 
                     '''Run check if the radiator pump should go,
@@ -219,7 +219,7 @@ class MainLoop():
 
                     #Run control of sun warming pump
                     self.VS1_CP1_Class.main(0)
-                    self.IOVariables['b_P1_DO']['Value'] = (
+                    self.IOVariables['b_VS1_CP1_DO']['Value'] = (
                         self.VS1_CP1_Class.Out)
 
                     self.CheckIfNewDay()
