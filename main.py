@@ -73,8 +73,8 @@ class MainLoop():
         #Declare Heating valve
         self.VS1_SV1_Class = OpenCloseValve()
         self.VS1_SV1_Class.Name = 'VS1_SV1'
-        self.VS1_SV1_Class.Open_IO = 'b_SV_OPEN_DO'
-        self.VS1_SV1_Class.Close_IO = 'b_SV_CLOSE_DO'
+        self.VS1_SV1_Class.Open_IO = 'b_VS1_SV1_OPEN_DO'
+        self.VS1_SV1_Class.Close_IO = 'b_VS1_SV1_CLOSE_DO'
 
         #Initialize the loops
         self.ActTimeLoop1 = time.time()
