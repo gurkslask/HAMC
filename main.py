@@ -118,6 +118,7 @@ class MainLoop():
             self.VS1_GT2.Name: self.VS1_GT2.__dict__,
             self.VS1_GT3.Name: self.VS1_GT3.__dict__,
             self.SUN_GT2.Name: self.SUN_GT2.__dict__,
+            'VS1_Setpoint': self.Setpoint_VS1,
             'IOVariables': self.IOVariables
             }
         self.choice = False
