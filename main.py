@@ -37,11 +37,11 @@ class MainLoop():
 
         #Declare temperature sensors
         #Framledning
-        self.GT1 = DS1820('28-00000523a1cb')
-        self.GT1.Comment = '''
+        self.VS1_GT1 = DS1820('28-00000523a1cb')
+        self.VS1_GT1.Comment = '''
         This is the sensor that measures
         the water temperature to the radiators'''
-        self.GT1.Name = 'VS1_GT1'
+        self.VS1_GT1.Name = 'VS1_GT1'
         #Retur
         self.VS1_GT2 = DS1820('28-00000524056e')
         self.VS1_GT2.Comment = '''This is the sensor that measures
@@ -64,7 +64,7 @@ class MainLoop():
         self.SUN_GT2.Name = 'VS1_GT2'
 
         #Declare logging interval
-        self.GT1.SetWriteInterval(60)
+        self.VS1_GT1.SetWriteInterval(60)
         self.VS1_GT2.SetWriteInterval(60)
         self.VS1_GT3.SetWriteInterval(60)
         #self.SUN_GT1.SetWriteInterval(60)
@@ -114,6 +114,10 @@ class MainLoop():
             self.VS1_CP1_Class.Name: self.VS1_CP1_Class.__dict__,
             self.VS1_CP2_Class.Name: self.VS1_CP2_Class.__dict__,
             self.VS1_SV1_Class.Name: self.VS1_SV1_Class.__dict__,
+            self.VS1_GT1.Name: self.VS1_GT1.__dict__,
+            self.VS1_GT2.Name: self.VS1_GT2.__dict__,
+            self.VS1_GT3.Name: self.VS1_GT3.__dict__,
+            self.SUN_GT2.Name: self.SUN_GT2.__dict__,
             'IOVariables': self.IOVariables
             }
         self.choice = False
@@ -132,13 +136,13 @@ class MainLoop():
 
                     #Run the sensors
                     try:
-                        self.GT1.RunMainTemp()
+                        self.VS1_GT1.RunMainTemp()
                     except Exception, e:
                         print('''
                             It went wrong time: {time} with {name}... {e}
                             ''').format(
                             time=dt.datetime.now(),
-                            name=self.GT1.__class__,
+                            name=self.VS1_GT1.__class__,
                             e=e)
                     try:
                         self.VS1_GT2.RunMainTemp()
@@ -185,7 +189,7 @@ class MainLoop():
 
                     #Run valve check
                     self.VS1_SV1_Class.main(
-                        self.GT1.temp,
+                        self.VS1_GT1.temp,
                         self.Setpoint_VS1,
                         self.IOVariables)
                     #Run logging of the state of the valve
@@ -279,7 +283,7 @@ class MainLoop():
             print('Invalid values entered')
 
     def ShowValues(self):
-        print('GT1 {0:.1f}'.format(self.GT1.temp))
+        print('GT1 {0:.1f}'.format(self.VS1_GT1.temp))
         print('GT2 {0:.1f}'.format(self.VS1_GT2.temp))
         print('GT3 {0:.1f}'.format(self.VS1_GT3.temp))
         #print('Solpanel - GT1 - uppe {0:.1f}'.format(self.SUN_GT1.temp))
