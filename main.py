@@ -314,11 +314,11 @@ class MainLoop():
 
     def InteractWithFlask(self, choice):
         '''Dump shared_dict to a pickle, or load it'''
+        for i in self.shared_dict:
+            if 'trend_func' in i:
+                del i['trend_func']
         if choice:
             with open('shared_dict', 'wb+') as f:
-                for i in self.shared_dict:
-                    if 'trend_func' in i:
-                        del i['trend_func']
                 pickle.dump(self.shared_dict, f)
         elif not choice:
             with open('shared_dict', 'rb') as f:
