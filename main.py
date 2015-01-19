@@ -316,6 +316,9 @@ class MainLoop():
         '''Dump shared_dict to a pickle, or load it'''
         if choice:
             with open('shared_dict', 'wb+') as f:
+                for i in self.shared_dict:
+                    if 'trend_func' in i:
+                        del i['trend_func']
                 pickle.dump(self.shared_dict, f)
         elif not choice:
             with open('shared_dict', 'rb') as f:
