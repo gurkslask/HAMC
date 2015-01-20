@@ -108,19 +108,6 @@ class MainLoop():
         self.datumtid = datetime.date.today()
         self.ThreeDayTemp = 9.0
 
-        #Declare Flask shared dictionary
-        self.shared_dict = {
-            'komp': self.Komp.DictVarden,
-            self.VS1_CP1_Class.Name: self.VS1_CP1_Class.__dict__,
-            self.VS1_CP2_Class.Name: self.VS1_CP2_Class.__dict__,
-            self.VS1_SV1_Class.Name: self.VS1_SV1_Class.__dict__,
-            self.VS1_GT1.Name: self.VS1_GT1.__dict__,
-            self.VS1_GT2.Name: self.VS1_GT2.__dict__,
-            self.VS1_GT3.Name: self.VS1_GT3.__dict__,
-            self.SUN_GT2.Name: self.SUN_GT2.__dict__,
-            'VS1_Setpoint': self.Setpoint_VS1,
-            'IOVariables': self.IOVariables
-            }
         self.choice = False
 
     def ControlLoop(self):
@@ -313,10 +300,48 @@ class MainLoop():
             self.datumtid = datetime.date.today()
 
     def InteractWithFlask(self, choice):
+        #Declare Flask shared dictionary
+        self.shared_dict = {
+            'komp': self.Komp.DictVarden,
+            self.VS1_CP1_Class.Name: {
+                'Out': self.VS1_CP1_Class.Out,
+                'Man':  self.VS1_CP1_Class.Man,
+                'S1':  self.VS1_CP1_Class.S1,
+                'S2':  self.VS1_CP1_Class.S2,
+                'S3':  self.VS1_CP1_Class.S3,
+                'T1':  self.VS1_CP1_Class.T1,
+                'T2':  self.VS1_CP1_Class.T2,
+                'T3':  self.VS1_CP1_Class.T3,
+                'LarmDelay': self.VS1_CP1_Class.LarmDelay
+            },
+            self.VS1_CP2_Class.Name: {
+                'Out': self.VS1_CP2_Class.Out,
+                'Man':  self.VS1_CP2_Class.Man,
+                'S1':  self.VS1_CP2_Class.S1,
+                'S2':  self.VS1_CP2_Class.S2,
+                'S3':  self.VS1_CP2_Class.S3,
+                'T1':  self.VS1_CP2_Class.T1,
+                'T2':  self.VS1_CP2_Class.T2,
+                'T3':  self.VS1_CP2_Class.T3,
+                'LarmDelay': self.VS1_CP2_Class.LarmDelay
+            },
+            self.VS1_SV1_Class.Name: {
+                'deadband': self.VS1_SV1_Class.deadband,
+                'Time_Open': self.VS1_SV1_Class.Time_Open,
+                'Time_Close': self.VS1_SV1_Class.Time_Close,
+                'Open_IO': self.VS1_SV1_Class.Open_IO,
+                'Close_IO': self.VS1_SV1_Class.Close_IO
+            },
+            self.VS1_GT1.Name: self.VS1_GT1.temp,
+            self.VS1_GT2.Name: self.VS1_GT2.temp,
+            self.VS1_GT3.Name: self.VS1_GT3.temp,
+            self.SUN_GT2.Name: self.SUN_GT2.temp,
+            'VS1_Setpoint': self.Setpoint_VS1,
+            'time': time.time(),
+            'IOVariables': self.IOVariables
+            }
+
         '''Dump shared_dict to a pickle, or load it'''
-        for i in self.shared_dict:
-            if 'trend_func' in i:
-                del i['trend_func']
         if choice:
             with open('shared_dict', 'wb+') as f:
                 pickle.dump(self.shared_dict, f)
