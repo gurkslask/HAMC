@@ -338,12 +338,19 @@ class MainLoop():
             self.SUN_GT2.Name: self.SUN_GT2.temp,
             'VS1_Setpoint': self.Setpoint_VS1,
             'time': time.time(),
-            'IOVariables': self.IOVariables
+            'IOVariables': self.IOVariables,
+            'update_from_flask': False,
+            'update_from_main': False
             }
 
         '''Dump shared_dict to a pickle, or load it'''
         if choice:
+            with open('shared_dict', 'rb') as r:
+                #Read the dict and see if there is an update
+                if pickle.load(r)['update_from_flask']:
+                    print('Update from flask')
             with open('shared_dict', 'wb+') as f:
+                self.shared_dict['update_from_main'] = True
                 pickle.dump(self.shared_dict, f)
         elif not choice:
             with open('shared_dict', 'rb') as f:
