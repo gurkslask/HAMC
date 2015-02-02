@@ -183,12 +183,6 @@ class MainLoop():
                     #Run logging of the state of the valve
                     #Run control of the valve
 
-                    #Run modbus communication
-                    try:
-                        runModBus(self.IOVariables)
-                    except Exception, e:
-                        raise e
-                        print('Something went wrong with the modbus!')
 
                 if self.ActTimeLoop2 + 5 < time.time():
                     #5seconds loop
@@ -217,7 +211,13 @@ class MainLoop():
                     self.CheckIfNewDay()
 
                     self.choice = not self.choice
-                    self.InteractWithFlask(self.choice)
+                    #self.InteractWithFlask(self.choice)
+                    #Run modbus communication
+                    try:
+                        runModBus(self.IOVariables)
+                    except Exception, e:
+                        raise e
+                        print('Something went wrong with the modbus!')
 
                     #print('Loop 2')
 
@@ -277,6 +277,7 @@ class MainLoop():
         #print('Solpanel - GT1 - uppe {0:.1f}'.format(self.SUN_GT1.temp))
         print('Solpanel - GT2 - nere {0:.1f}'.format(self.SUN_GT2.temp))
         print('SP {0:.1f}'.format(self.Setpoint_VS1))
+        print(self.Komp.DictVarden)
 
     def ShowWeather(self):
         print(self.Weather_State)
