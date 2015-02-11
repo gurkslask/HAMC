@@ -25,7 +25,7 @@ class PumpControl(object):
         self.T3 = 0  #total
         try:
             self.unpickla()
-        except Exception, e:
+        except Exception as e:
             print('unpickla went wrong' + str(e))
 
     def Documentation(self):
@@ -49,7 +49,7 @@ class PumpControl(object):
 
         try:
             self.pickla()
-        except Exception, e:
+        except Exception as e:
             print('pickla went wrong' + str(e))
 
     def NewDay(self):

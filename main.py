@@ -1,27 +1,30 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+
 from ds1820class import DS1820
 from ds1820class import Write_temp
 from Kompensering import Kompensering
 from OpenCloseValveClass import OpenCloseValve
 from IOdef import IOdef
 from scraping import GetData
-from PumpControl import PumpControl, Control_of_CP2
+from PumpControl import PumpControl
 from ModBus import runModBus
 import time
 import threading
 import pickle
 import datetime
 import datetime as dt
-
+import asyncio
+from timechannel import timechannel
+from socket_server import EchoServerClientProtocol
 
 class MainLoop():
     def __init__(self):
 
-        #Declare IO Variables
+        # Declare IO Variables
         self.IOVariables = IOdef()
 
-        #Declare temperaturecompensation
+        # Declare temperaturecompensation
         self.Komp = Kompensering()
         self.Komp.SetVarden(20, 17)
         self.Komp.SetVarden(-10, 40)
@@ -31,78 +34,79 @@ class MainLoop():
         self.Komp.SetMax(65)
         self.Komp.SetMin(20)
 
-        #Loggin of the compensation
+        # Loggin of the compensation
         self.Setpoint_VS1 = 0.0
         self.Setpoint_Log_VS1 = Write_temp(self.Setpoint_VS1, 'VS1_Setpoint')
 
-        #Declare temperature sensors
-        #Framledning
+        # Declare temperature sensors
+        # Framledning
         self.VS1_GT1 = DS1820('28-00000523a1cb')
         self.VS1_GT1.Comment = '''
         This is the sensor that measures
         the water temperature to the radiators'''
         self.VS1_GT1.Name = 'VS1_GT1'
-        #Retur
+        # Retur
         self.VS1_GT2 = DS1820('28-00000524056e')
         self.VS1_GT2.Comment = '''This is the sensor that measures
          the water temperature from the radiators'''
         self.VS1_GT2.Name = 'VS1_GT2'
-        #Ute
+        # Ute
         self.VS1_GT3 = DS1820('28-0000052407e0')
         self.VS1_GT3.Comment = '''This is the sensor that measures
          the outdoor temperature'''
         self.VS1_GT3.Name = 'VS1_GT3'
-        #@Solar panels
-        #self.SUN_GT1 = DS1820('28-00000523ab8e')
-        #self.SUN_GT1.Comment = '''This is the sensor that measures
-        #the water temperature to the solar panels'''
-        #self.SUN_GT1.Name = 'SUN_GT1'
+        # @Solar panels
+        # self.SUN_GT1 = DS1820('28-00000523ab8e')
+        # self.SUN_GT1.Comment = '''This is the sensor that measures
+        # the water temperature to the solar panels'''
+        # self.SUN_GT1.Name = 'SUN_GT1'
         # After solar panels
         self.SUN_GT2 = DS1820('28-0000052361be')
         self.SUN_GT2.Comment = '''This is the sensor that measures
          the water temperature from the solar panels'''
         self.SUN_GT2.Name = 'VS1_GT2'
 
-        #Declare logging interval
+        # Declare logging interval
         self.VS1_GT1.SetWriteInterval(60)
         self.VS1_GT2.SetWriteInterval(60)
         self.VS1_GT3.SetWriteInterval(60)
-        #self.SUN_GT1.SetWriteInterval(60)
+        # self.SUN_GT1.SetWriteInterval(60)
         self.SUN_GT2.SetWriteInterval(60)
 
-        #Declare Heating valve
+        # Declare Heating valve
         self.VS1_SV1_Class = OpenCloseValve()
         self.VS1_SV1_Class.Name = 'VS1_SV1'
         self.VS1_SV1_Class.Open_IO = 'b_VS1_SV1_OPEN_DO'
         self.VS1_SV1_Class.Close_IO = 'b_VS1_SV1_CLOSE_DO'
 
-        #Initialize the loops
+        # Initialize the loops
         self.ActTimeLoop1 = time.time()
         self.ActTimeLoop2 = time.time()
         self.ActTimeLoop3 = time.time() - 14400
         self.ActTimeLoop4 = time.time()
         self.ActTimeLoop5 = time.time()
 
-        #Declare Cirkulation pump sun heaters
+        # Declare Cirkulation pump sun heaters
         self.VS1_CP2_Class = PumpControl('SUN_P1')
         self.VS1_CP2_Class.Comment = '''This is the pump that pumps
          water up to the sun heaters'''
-        #self.VS1_CP2_Class.Name='SUN_P1'
+        # self.VS1_CP2_Class.Name='SUN_P1'
 
-        #Declare Circualation pump for radiators in the house
+        # Declare Circualation pump for radiators in the house
         self.VS1_CP1_Class = PumpControl('VS1_CP1')
         self.VS1_CP1_Class.Comment = ('''This is the pump that supplies
          the heating radiators with hot water''')
 
-        #Interaction menu
+        # Interaction menu
         self.choices = {
-            "1": self.ChangeSP,
-            "2": self.ShowValues,
-            "3": self.ShowWeather,
-            "4": self.ToggleOut,
+            "1": self.change_sp,
+            "2": self.show_values,
+            "3": self.show_weather,
+            "4": self.toggle_out,
+            "5": self.change_nightsink,
             "0": self.exit
-            }
-        #Declare variebles
+        }
+        # Declare variebles
         self.Weather_State = ''
         self.exit_flag = False
         self.datumtid = datetime.date.today()
@@ -110,133 +114,188 @@ class MainLoop():
 
         self.choice = False
 
-    def ControlLoop(self):
-            while not self.exit_flag:
-                '''This is the main loop'''
-                if self.ActTimeLoop1 + 20 < time.time():
-                    #20 seconds loop
-                    #Reset time for next loop
-                    self.ActTimeLoop1 = time.time()
+        # Declare timechannel
+        self.time_channel_VS1_SV1 = timechannel()
+        self.VS1_SV1_SP_Down = False
+        self.time_channel_VS1_SV1.time_dict[0] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[1] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[2] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[3] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[4] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[5] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
+        self.time_channel_VS1_SV1.time_dict[6] = [
+            (dt.time(0, 0), True),
+            (dt.time(3, 0), False),
+            (dt.time(23, 0), True),
+            (dt.time(14, 0), False),
+            (dt.time(9, 0), True)
+        ]
 
-                    #print('GT1 {0:.1f}'.format(GT1.RunMainTemp()))
-                    #print('GT2 {0:.1f}'.format(VS1_GT2.RunMainTemp()))
-                    #print('GT3 {0:.1f}'.format(VS1_GT3.RunMainTemp()))
 
-                    #Run the sensors
-                    try:
-                        self.VS1_GT1.RunMainTemp()
-                    except Exception, e:
-                        print('''
+    def control_loop(self):
+        while not self.exit_flag:
+            '''This is the main loop'''
+            if self.ActTimeLoop1 + 20 < time.time():
+                # 20 seconds loop
+                # Reset time for next loop
+                self.ActTimeLoop1 = time.time()
+
+                # print('GT1 {0:.1f}'.format(GT1.RunMainTemp()))
+                # print('GT2 {0:.1f}'.format(VS1_GT2.RunMainTemp()))
+                # print('GT3 {0:.1f}'.format(VS1_GT3.RunMainTemp()))
+
+                # Run the sensors
+                try:
+                    self.VS1_GT1.RunMainTemp()
+                except Exception as e:
+                    print('''
                             It went wrong time: {time} with {name}... {e}
                             ''').format(
-                            time=dt.datetime.now(),
-                            name=self.VS1_GT1.__class__,
-                            e=e)
-                    try:
-                        self.VS1_GT2.RunMainTemp()
-                    except Exception, e:
-                        print('''
+                        time=dt.datetime.now(),
+                        name=self.VS1_GT1.__class__,
+                        e=e)
+                try:
+                    self.VS1_GT2.RunMainTemp()
+                except Exception as e:
+                    print('''
                             It went wrong time: {time} with {name}... {e}
                             ''').format(
-                            time=dt.datetime.now(),
-                            name=self.VS1_GT2.__class__,
-                            e=e)
-                    try:
-                        self.VS1_GT3.RunMainTemp()
-                    except Exception, e:
-                        print('''
+                        time=dt.datetime.now(),
+                        name=self.VS1_GT2.__class__,
+                        e=e)
+                try:
+                    self.VS1_GT3.RunMainTemp()
+                except Exception as e:
+                    print('''
                             It went wrong time: {time} with {name}... {e}
                             ''').format(
-                            time=dt.datetime.now(),
-                            name=self.VS1_GT3.__class__,
-                            e=e)
-                    #try:
-                        #self.SUN_GT1.RunMainTemp()
-                    #except Exception, e:
-                        #print('''
-                            #It went wrong time: {time} with {name}... {e}
-                            #''').format(
-                            #time=dt.datetime.now(),
-                            #name=self.SUN_GT1.__class__,
-                            #e=e)
-                    try:
-                        self.SUN_GT2.RunMainTemp()
-                    except Exception, e:
-                        print('''
+                        time=dt.datetime.now(),
+                        name=self.VS1_GT3.__class__,
+                        e=e)
+                    # try:
+                    # self.SUN_GT1.RunMainTemp()
+                    # except Exception, e:
+                    # print('''
+                    # It went wrong time: {time} with {name}... {e}
+                    # ''').format(
+                    # time=dt.datetime.now(),
+                    # name=self.SUN_GT1.__class__,
+                    # e=e)
+                try:
+                    self.SUN_GT2.RunMainTemp()
+                except Exception as e:
+                    print('''
                             It went wrong time: {time} with {name}... {e}
                             ''').format(
-                            time=dt.datetime.now(),
-                            name=self.SUN_GT2.__class__,
-                            e=e)
+                        time=dt.datetime.now(),
+                        name=self.SUN_GT2.__class__,
+                        e=e)
 
-                    #Calculate setpoint
-                    self.Setpoint_VS1 = self.Komp.CountSP(self.VS1_GT3.temp)
-                    self.Setpoint_Log_VS1.value = self.Setpoint_VS1
-                    #print('SP {0:.1f}'.format(Setpoint_VS1))
-                    self.Setpoint_Log_VS1.main()
+                # Calculate setpoint
+                self.Setpoint_VS1 = self.Komp.CountSP(self.VS1_GT3.temp)
+                self.Setpoint_Log_VS1.value = self.Setpoint_VS1
+                # print('SP {0:.1f}'.format(Setpoint_VS1))
+                self.Setpoint_Log_VS1.main()
 
-                    #Run valve check
-                    self.VS1_SV1_Class.main(
-                        self.VS1_GT1.temp,
-                        self.Setpoint_VS1,
-                        self.IOVariables)
-                    #Run logging of the state of the valve
-                    #Run control of the valve
+                # Run valve check
+                self.VS1_SV1_Class.main(
+                    self.VS1_GT1.temp,
+                    self.Setpoint_VS1,
+                    self.IOVariables)
 
+                # Run timechannel check, if True, change the setpoint
+                self.VS1_SV1_SP_Down = self.time_channel_VS1_SV1.check_state()
+                self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
 
-                if self.ActTimeLoop2 + 5 < time.time():
-                    #5seconds loop
-                    self.ActTimeLoop2 = time.time()
-                    #Run check if the sun warm pump should go
-                    #self.VS1_CP2_Class.Man = Control_of_CP2(
-                        #self.Weather_State,
-                        #self.VS1_GT3.temp,
-                        #self.SUN_GT2.temp,
-                        #self.SUN_GT1.temp)
-                    #Run control of sun warming pump
-                    self.VS1_CP2_Class.main(0)
-                    self.IOVariables['b_VS1_CP2_DO']['Value'] = (
-                        self.VS1_CP2_Class.Out)
+            if self.ActTimeLoop2 + 5 < time.time():
+                # 5seconds loop
+                self.ActTimeLoop2 = time.time()
+                # Run check if the sun warm pump should go
+                # self.VS1_CP2_Class.Man = Control_of_CP2(
+                # self.Weather_State,
+                # self.VS1_GT3.temp,
+                # self.SUN_GT2.temp,
+                # self.SUN_GT1.temp)
+                # Run control of sun warming pump
+                self.VS1_CP2_Class.main(0)
+                self.IOVariables['b_VS1_CP2_DO']['Value'] = (
+                    self.VS1_CP2_Class.Out)
 
-                    '''Run check if the radiator pump should go,
+                '''Run check if the radiator pump should go,
                      if out temperature is under 10 degrees
                     '''
-                    self.VS1_CP1_Class.Man = self.ThreeDayTemp < 10.0
+                self.VS1_CP1_Class.Man = self.ThreeDayTemp < 10.0
 
-                    #Run control of sun warming pump
-                    self.VS1_CP1_Class.main(0)
-                    self.IOVariables['b_VS1_CP1_DO']['Value'] = (
-                        self.VS1_CP1_Class.Out)
+                # Run control of sun warming pump
+                self.VS1_CP1_Class.main(0)
+                self.IOVariables['b_VS1_CP1_DO']['Value'] = (
+                    self.VS1_CP1_Class.Out)
 
-                    self.CheckIfNewDay()
+                self.check_if_new_day()
 
-                    self.choice = not self.choice
-                    #self.InteractWithFlask(self.choice)
-                    #Run modbus communication
-                    try:
-                        runModBus(self.IOVariables)
-                    except Exception, e:
-                        raise e
-                        print('Something went wrong with the modbus!')
+                # self.choice = not self.choice
+                # self.interact_with_flask(self.choice)
 
-                    #print('Loop 2')
-
-                if self.ActTimeLoop3 + 14400 < time.time():
-                    #4 hour loop
-                    self.ActTimeLoop3 = time.time()
-
-                    self.Weather_State = GetData()
+                # print('Loop 2')
 
 
-                if self.ActTimeLoop5 + 3600 < time.time():
-                    '''Run Loop once a hour
+                # Run modbus communication
+                try:
+                    runModBus(self.IOVariables)
+                except Exception as e:
+                    print('Something went wrong with the modbus!')
+                    raise e
+
+            if self.ActTimeLoop3 + 14400 < time.time():
+                # 4 hour loop
+                self.ActTimeLoop3 = time.time()
+
+                self.Weather_State = GetData()
+
+            if self.ActTimeLoop5 + 3600 < time.time():
+                '''Run Loop once a hour
                     '''
-                    self.SetThreeDayTemp()
+                self.set_three_day_temp()
 
+            time.sleep(1)
 
-                time.sleep(1)
-
-    def InteractionLoop(self):
+    def interaction_loop(self):
         while not self.exit_flag:
 
             print("""Home-automation menu:
@@ -244,86 +303,93 @@ class MainLoop():
                 2. Show values
                 3. Show weather
                 4. Toggle test bit
+                5. Change nightsink temperature
                 0. Exit
                 """)
-            choice = raw_input('Enter an option: ')
+            choice = input('Enter an option: ')
             action = self.choices.get(choice)
             if action:
                 action()
             else:
                 print("{0} is not a valid choice".format(choice))
 
-            #print('Fran klassen: Open - ' + str(self.VS1_SV1_Class.Man_Open_OUT))
-            #print('Fran klassen: Close - ' + str(self.VS1_SV1_Class.Man_Close_OUT))
-            #print('Fran databasen: Open - ' + str(self.IOVariables['b_SV_OPEN_DO']['Value']))
-            #print('Fran databasen: Close - ' + str(self.IOVariables['b_SV_CLOSE_DO']['Value']))
             time.sleep(5)
 
-    def SetThreeDayTemp(self):
-        self.ThreeDayTemp = self.ThreeDayTemp + (self.VS1_GT3.temp / 72.0)
+    def set_three_day_temp(self):
+        self.ThreeDayTemp += self.VS1_GT3.temp / 72.0
 
-    def ChangeSP(self):
+    def change_sp(self):
         value1 = input('Enter outside temperature: ')
         value2 = input('Enter forward temperature: ')
         try:
             self.Komp.DictVarden[int(value1)] = int(value2)
-        except:
-            print('Invalid values entered')
+        except KeyError as e:
+            print('Invalid values entered, {}'.format(e))
 
-    def ShowValues(self):
+    def change_nightsink(self):
+        try:
+            nightsink = float(input('Enter nightsink temperature: '))
+        except ValueError as e:
+            print('Value {} is not a float'.format(nightsink))
+        else:
+            self.Komp.value_to_lower = nightsink
+
+
+    def show_values(self):
         print('GT1 {0:.1f}'.format(self.VS1_GT1.temp))
         print('GT2 {0:.1f}'.format(self.VS1_GT2.temp))
         print('GT3 {0:.1f}'.format(self.VS1_GT3.temp))
-        #print('Solpanel - GT1 - uppe {0:.1f}'.format(self.SUN_GT1.temp))
+        # print('Solpanel - GT1 - uppe {0:.1f}'.format(self.SUN_GT1.temp))
         print('Solpanel - GT2 - nere {0:.1f}'.format(self.SUN_GT2.temp))
         print('SP {0:.1f}'.format(self.Setpoint_VS1))
-        print(self.Komp.DictVarden)
+        print('Nattsänkning {}'.format(self.VS1_SV1_SP_Down))
+        print('Börvärde{}'.format(self.Komp.DictVarden))
 
-    def ShowWeather(self):
+    def show_weather(self):
         print(self.Weather_State)
 
-    def ToggleOut(self):
+    def toggle_out(self):
         self.IOVariables['b_Test']['Value'] = not self.IOVariables['b_Test']['Value']
         print('b_test info: {testvar}'.format(testvar=self.IOVariables['b_Test']))
 
     def exit(self):
         print('System exits...')
-        #shutdown_server()
+        # shutdown_server()
         print('System exits...')
         self.exit_flag = True
         print('System exits...')
         time.sleep(5)
         raise SystemExit
 
-    def CheckIfNewDay(self):
+    def check_if_new_day(self):
         if self.datumtid.day != datetime.date.today().day:
-            #if a new day...
+            # if a new day...
             self.datumtid = datetime.date.today()
 
-    def InteractWithFlask(self, choice):
-        #Declare Flask shared dictionary
+    def interact_with_flask(self, choice):
+        # Declare Flask shared dictionary
         self.shared_dict = {
             'komp': self.Komp.DictVarden,
             self.VS1_CP1_Class.Name: {
                 'Out': self.VS1_CP1_Class.Out,
-                'Man':  self.VS1_CP1_Class.Man,
-                'S1':  self.VS1_CP1_Class.S1,
-                'S2':  self.VS1_CP1_Class.S2,
-                'S3':  self.VS1_CP1_Class.S3,
-                'T1':  self.VS1_CP1_Class.T1,
-                'T2':  self.VS1_CP1_Class.T2,
-                'T3':  self.VS1_CP1_Class.T3,
+                'Man': self.VS1_CP1_Class.Man,
+                'S1': self.VS1_CP1_Class.S1,
+                'S2': self.VS1_CP1_Class.S2,
+                'S3': self.VS1_CP1_Class.S3,
+                'T1': self.VS1_CP1_Class.T1,
+                'T2': self.VS1_CP1_Class.T2,
+                'T3': self.VS1_CP1_Class.T3,
                 'LarmDelay': self.VS1_CP1_Class.LarmDelay
             },
             self.VS1_CP2_Class.Name: {
                 'Out': self.VS1_CP2_Class.Out,
-                'Man':  self.VS1_CP2_Class.Man,
-                'S1':  self.VS1_CP2_Class.S1,
-                'S2':  self.VS1_CP2_Class.S2,
-                'S3':  self.VS1_CP2_Class.S3,
-                'T1':  self.VS1_CP2_Class.T1,
-                'T2':  self.VS1_CP2_Class.T2,
-                'T3':  self.VS1_CP2_Class.T3,
+                'Man': self.VS1_CP2_Class.Man,
+                'S1': self.VS1_CP2_Class.S1,
+                'S2': self.VS1_CP2_Class.S2,
+                'S3': self.VS1_CP2_Class.S3,
+                'T1': self.VS1_CP2_Class.T1,
+                'T2': self.VS1_CP2_Class.T2,
+                'T3': self.VS1_CP2_Class.T3,
                 'LarmDelay': self.VS1_CP2_Class.LarmDelay
             },
             self.VS1_SV1_Class.Name: {
@@ -342,17 +408,17 @@ class MainLoop():
             'IOVariables': self.IOVariables,
             'update_from_flask': False,
             'update_from_main': False
-            }
+        }
 
         '''Dump shared_dict to a pickle, or load it'''
         if choice:
             try:
                 with open('shared_dict', 'rb') as r:
-                    #Read the dict and see if there is an update
+                    # Read the dict and see if there is an update
                     if pickle.load(r)['update_from_flask']:
-                            print('Update from flask')
-            except IOError, e:
-                pass
+                        print('Update from flask')
+            except IOError as e:
+                print(e)
             with open('shared_dict', 'wb+') as f:
                 self.shared_dict['update_from_main'] = True
                 pickle.dump(self.shared_dict, f)
@@ -360,12 +426,32 @@ class MainLoop():
             with open('shared_dict', 'rb') as f:
                 self.shared_dict.update(pickle.load(f))
 
+    def interact(self):
+
+        loop = asyncio.get_event_loop()
+        # Each client connection will create a new protocol instance
+        coro = loop.create_server(EchoServerClientProtocol, host, port)
+        server = loop.run_until_complete(coro)
+
+        # Serve requests until CTRL+c is pressed
+        print('Serving on {}'.format(server.sockets[0].getsockname()))
+        try:
+            loop.run_forever()
+        except KeyboardInterrupt:
+            pass
+
+        # Close the server
+        server.close()
+        loop.run_until_complete(server.wait_closed())
+        loop.close()
+
 
 def main():
     ML = MainLoop()
-    #threading.Thread(target=ML.FlaskLoop).start()
-    threading.Thread(target=ML.ControlLoop).start()
-    threading.Thread(target=ML.InteractionLoop).start()
+    # threading.Thread(target=ML.FlaskLoop).start()
+    threading.Thread(target=ML.control_loop).start()
+    threading.Thread(target=ML.interaction_loop).start()
+    # threading.Thread(target=ML.interact).start()
 
 
 if __name__ == '__main__':

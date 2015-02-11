@@ -13,6 +13,8 @@ class Kompensering:
         self.DictVarden = {}
         self.SortedDictVarden = {}
         self.IterValue = 0
+        self.value_to_lower = 0.7
+        self.lower_value = 1.0
 
     def SetVarden(self, GraderUte, GraderFram):
         """SetVarden takes two values, the temperature outside,
@@ -34,6 +36,12 @@ class Kompensering:
     def MinMax(self, Value):
         """MinMax returns a value between the set min and max values"""
         return max(self.Min, min(self.Max, Value))
+
+    def change_SP_lower(self, state):
+        if state:
+            self.lower_value = self.value_to_lower
+        else:
+            self.lower_value = 1.0
 
     def CountSP(self, PV):
         """Calculate the actual setpoint based on the provided values and the
@@ -64,7 +72,7 @@ class Kompensering:
         #straight line equation
         self.k = (self.y2 - self.y1) / (self.x2 - self.x1)
         self.m = self.y1 - (self.x1 * self.k)
-        self.SP = (PV * self.k) + self.m
+        self.SP = ((PV * self.k) + self.m) * self.lower_value
         return self.MinMax(self.SP)
 
 

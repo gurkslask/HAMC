@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import urllib2
+from urllib.request import urlopen
 
 def GetData():
     #Open forecast homepage
-    res = urllib2.urlopen('http://www.temperatur.nu/kalmar-prognos.html')
+    res = urlopen('http://www.temperatur.nu/kalmar-prognos.html')
     #read the data
-    data = res.read()
+    data = str(res.read())
 
     #Find start position
     start_pos=data.find('width="38" alt=')

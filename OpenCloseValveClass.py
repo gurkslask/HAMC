@@ -19,7 +19,7 @@ class OpenCloseValve(object):
         self.Time_Close = 3.0  # Seconds the valve shall close
 
     def man(self, direction, io_dict):
-        self.WriteDoc(direction)
+        #self.WriteDoc(direction)
         if direction == 'open':
             #Set variable
             io_dict[self.Open_IO]['Value'] = True

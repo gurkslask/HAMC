@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from pymodbus.client.sync import ModbusTcpClient
+from pymodbus3.client.sync import ModbusTcpClient
 
 class ModbusDigitalInputIOCard():
     """docstring for ModbusDigitalInput

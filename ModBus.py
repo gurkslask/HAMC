@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from pymodbus.client.sync import ModbusTcpClient
-import time, os
+from pymodbus3.client.sync import ModbusTcpClient
 from ModbusDigitalInputIOCardClass import ModbusDigitalInputIOCard
 from ModbusDigitalOutputIOCardClass import ModbusDigitalOutputIOCard
 
@@ -43,34 +42,6 @@ def runModBus(IOVariables):
     # close the client
     #---------------------------------------------------------------------------#
     client.close()      
-'''
-#rq = client.write_registers(8009, [2]*4)
-rr = client.read_input_registers(0000,1)
-print rr
-#assert(rr.registers == [10]*8)
-
-'''
-'''
-rr = client.read_holding_registers(8001, 1)
-print rr.registers
-
-i=1
-uptime = time.time()
-while True:
-    rq = client.write_registers(800, [i]*1)
-    print i
-    rr = client.read_input_registers(000, 1)
-    print rr.registers
-    if i < 7:
-        i = i * 2
-        print time.time() - uptime
-    else:
-        i=1
-        os.system("cls")
-    time.sleep(1)
-'''
-
-
 
 
 

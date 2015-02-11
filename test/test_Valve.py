@@ -1,13 +1,14 @@
+#! usr/bin/python3
 import sys
 sys.path.append('..')
-from OpenCloseValveClass import OpenCloseValve2
+from OpenCloseValveClass import OpenCloseValve
 import unittest
 import time
 
 
 class test_Valve(unittest.TestCase):
     def setUp(self):
-        self.ValveClass = OpenCloseValve2()
+        self.ValveClass = OpenCloseValve()
         self.IO_Dict = {
             'SV1_Open': {
                 'Value': False},

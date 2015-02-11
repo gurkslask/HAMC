@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from pymodbus.client.sync import ModbusTcpClient
+from pymodbus3.client.sync import ModbusTcpClient
 from distutils.util import strtobool
 
 
@@ -42,6 +42,7 @@ class ModbusDigitalOutputIOCard():
             Bindata = str(self.IOVariables[i])+Bindata
         DecData = int(Bindata, 2)
         DecData = [DecData]
+        #print(DecData)
         return DecData
 
     def WriteStatus(self):
