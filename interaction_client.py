@@ -36,7 +36,7 @@ def interact():
         print('Whaddayawant?!')
         choice = input('Yo?!')
         if choice is 'w':
-            call_server('Value1')
+            call_server('hej')
 
 
 def call_server(message):

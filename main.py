@@ -8,7 +8,7 @@ from OpenCloseValveClass import OpenCloseValve
 from IOdef import IOdef
 from scraping import GetData
 from PumpControl import PumpControl
-#from ModBus import runModBus
+# from ModBus import runModBus
 import time
 import threading
 import pickle
@@ -18,18 +18,21 @@ import asyncio
 from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
 import sys
+import json
+
 
 class MainLoop():
     def __init__(self):
+        self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
         self.socket_host = '127.0.0.1'
         self.socket_port = 5004
         self.loop = asyncio.get_event_loop()
         # Each client connection will create a new protocol instance
         self.coro = self.loop.create_server(
-            EchoServerClientProtocol,
+            lambda: EchoServerClientProtocol(self.data_func()),
             self.socket_host,
             self.socket_port)
-        server = self.loop.run_until_complete(self.coro)
+        self.server = self.loop.run_until_complete(self.coro)
         self.loop.create_task(self.async_5sec())
         self.loop.create_task(self.async_20sec())
         self.loop.create_task(self.async_1440sec())
@@ -37,7 +40,6 @@ class MainLoop():
         self.loop.add_reader(sys.stdin, self.async_interaction_loop)
 
         # Serve requests until CTRL+c is pressed
-        #print('Serving on {}'.format(self.server.sockets[0].getsockname()))
 
 
         # Declare IO Variables
@@ -195,6 +197,13 @@ class MainLoop():
         self.loop.run_until_complete(self.server.wait_closed())
         self.loop.close()
 
+    def data_func(self):
+        # Method for communicating with asyncio socket server!
+        try:
+            self.testnummer += 1
+        except Exception as e:
+            self.testnummer = 0
+        return self.testnummer
 
     @asyncio.coroutine
     def async_5sec(self):
@@ -229,6 +238,7 @@ class MainLoop():
             # self.interact_with_flask(self.choice)
 
             # print('Loop 2')
+
             print('Var 5:e')
 
 

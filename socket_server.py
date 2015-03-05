@@ -15,21 +15,14 @@ my_dict = {
 
 
 class EchoServerClientProtocol(asyncio.Protocol):
+    def __init__(self, hdata):
+        # data_func method
+        self.HAMC_data = hdata
+
     def connection_made(self, transport):
         peername = transport.get_extra_info('peername')
         print('Connection from {}'.format(peername))
         self.transport = transport
-
-    '''    def data_received(self, data):
-        message = data.decode()
-        print('Data received: {!r}'.format(message))
-
-        print('Send: {!r}'.format(message))
-        self.transport.write(data)
-
-        print('Close the client socket')
-        self.transport.close()
-    '''
 
     def data_received(self, data):
         message = data.decode()
@@ -37,7 +30,8 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
         if message == 'hej':
             # data_to_send = my_dict['Value1']
-            data_to_send = str(json.dumps(my_dict['Value1'])).encode()
+            # data_to_send = str(json.dumps(my_dict['Value1'])).encode()
+            data_to_send = str(json.dumps(self.HAMC_data)).encode()
             print('Send: {!r}'.format(data_to_send))
             self.transport.write(data_to_send)
         else:
@@ -45,8 +39,6 @@ class EchoServerClientProtocol(asyncio.Protocol):
             self.transport.write(data)
         print('Close the client socket')
         self.transport.close()
-
-
 
     def data_send(self, data):
         self.transport.write(data)
