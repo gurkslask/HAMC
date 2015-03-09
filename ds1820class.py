@@ -58,14 +58,17 @@ class DS1820():
     def ReadTemp(self):
         '''Read the file that stores temperature data, use the folder
         with the provided adress. Dont forget to run modprobe on the pi'''
-        with open(r'/sys/bus/w1/devices/' + self.adress + r'/w1_slave', 'r') as tempfile:
-            data = tempfile.read()  # Read the whole file
-            if 'YES' in data:
-                temp_pos = data.find('t=')  # Look for t, this is where the temperature is
-                data = data[temp_pos + 2:]  # remove 't='
-                data = float(data) / 1000  # insert comma,
-                self.temp = data
-                return data
+        try:
+            with open(r'/sys/bus/w1/devices/' + self.adress + r'/w1_slave', 'r') as tempfile:
+                data = tempfile.read()  # Read the whole file
+                if 'YES' in data:
+                    temp_pos = data.find('t=')  # Look for t, this is where the temperature is
+                    data = data[temp_pos + 2:]  # remove 't='
+                    data = float(data) / 1000  # insert comma,
+                    self.temp = data
+                    return data
+        except FileNotFoundError as e:
+            print('File not found ! \n {}'.format(e))
 
     def RunMainTemp(self):
         '''This is where the magic happens'''
