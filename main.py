@@ -8,7 +8,7 @@ from OpenCloseValveClass import OpenCloseValve
 from IOdef import IOdef
 from scraping import GetData
 from PumpControl import PumpControl
-from ModBus import runModBus
+#from ModBus import runModBus
 import time
 import threading
 import pickle
@@ -21,6 +21,32 @@ import sys
 
 class MainLoop():
     def __init__(self):
+        self.socket_host = '127.0.0.1'
+        self.socket_port = 5004
+        self.loop = asyncio.get_event_loop()
+        # Each client connection will create a new protocol instance
+        self.coro = self.loop.create_server(
+            EchoServerClientProtocol,
+            self.socket_host,
+            self.socket_host)
+        server = self.loop.run_until_complete(self.coro)
+        self.loop.create_task(self.async_5sec())
+        self.loop.create_task(self.async_20sec())
+        self.loop.create_task(self.async_1440sec())
+        self.loop.create_task(self.async_3600sec())
+
+        # Serve requests until CTRL+c is pressed
+        #print('Serving on {}'.format(self.server.sockets[0].getsockname()))
+        try:
+            self.loop.run_forever()
+        except KeyboardInterrupt:
+            pass
+
+        # Close the server
+        self.server.close()
+        self.loop.run_until_complete(self.server.wait_closed())
+        self.loop.close()
+
 
         # Declare IO Variables
         self.IOVariables = IOdef()
@@ -161,87 +187,14 @@ class MainLoop():
             (dt.time(9, 0), True)
         ]
         self.time_channel_VS1_SV1.time_dict[6] = [
-            (dt.time(0, 0), True),
-            (dt.time(3, 0), False),
-            (dt.time(23, 0), True),
-            (dt.time(14, 0), False),
-            (dt.time(9, 0), True)
-        ]
+                (dt.time(0, 0), True),
+                (dt.time(3, 0), False),
+                (dt.time(23, 0), True),
+                (dt.time(14, 0), False),
+                (dt.time(9, 0), True)
+            ]
 
-
-    def async_20sec(self):
-        yield from asyncio.sleep(20)
-        # 20 seconds loop
-        # Reset time for next loop
-        self.ActTimeLoop1 = time.time()
-
-        # print('GT1 {0:.1f}'.format(GT1.RunMainTemp()))
-        # print('GT2 {0:.1f}'.format(VS1_GT2.RunMainTemp()))
-        # print('GT3 {0:.1f}'.format(VS1_GT3.RunMainTemp()))
-
-        # Run the sensors
-        try:
-            self.VS1_GT1.RunMainTemp()
-        except Exception as e:
-            print('''
-                    It went wrong time: {time} with {name}... {e}
-                    ''').format(
-                time=dt.datetime.now(),
-                name=self.VS1_GT1.__class__,
-                e=e)
-        try:
-            self.VS1_GT2.RunMainTemp()
-        except Exception as e:
-            print('''
-                    It went wrong time: {time} with {name}... {e}
-                    ''').format(
-                time=dt.datetime.now(),
-                name=self.VS1_GT2.__class__,
-                e=e)
-        try:
-            self.VS1_GT3.RunMainTemp()
-        except Exception as e:
-            print('''
-                    It went wrong time: {time} with {name}... {e}
-                    ''').format(
-                time=dt.datetime.now(),
-                name=self.VS1_GT3.__class__,
-                e=e)
-            # try:
-            # self.SUN_GT1.RunMainTemp()
-            # except Exception, e:
-            # print('''
-            # It went wrong time: {time} with {name}... {e}
-            # ''').format(
-            # time=dt.datetime.now(),
-            # name=self.SUN_GT1.__class__,
-            # e=e)
-        try:
-            self.SUN_GT2.RunMainTemp()
-        except Exception as e:
-            print('''
-                    It went wrong time: {time} with {name}... {e}
-                    ''').format(
-                time=dt.datetime.now(),
-                name=self.SUN_GT2.__class__,
-                e=e)
-
-        # Calculate setpoint
-        self.Setpoint_VS1 = self.Komp.CountSP(self.VS1_GT3.temp)
-        self.Setpoint_Log_VS1.value = self.Setpoint_VS1
-        # print('SP {0:.1f}'.format(Setpoint_VS1))
-        self.Setpoint_Log_VS1.main()
-
-        # Run valve check
-        self.VS1_SV1_Class.main(
-            self.VS1_GT1.temp,
-            self.Setpoint_VS1,
-            self.IOVariables)
-
-        # Run timechannel check, if True, change the setpoint
-        self.VS1_SV1_SP_Down = self.time_channel_VS1_SV1.check_state()
-        self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
-
+    @asyncio.coroutine
     def async_5sec(self):
         yield from asyncio.sleep(5)
         # 5seconds loop
@@ -276,15 +229,93 @@ class MainLoop():
 
 
         # Run modbus communication
-        try:
+        '''try:
             runModBus(self.IOVariables)
         except Exception as e:
             print('Something went wrong with the modbus!')
+        '''
 
+    @asyncio.coroutine
+    def async_20sec(self):
+        yield from asyncio.sleep(20)
+        # 20 seconds loop
+        # Reset time for next loop
+        self.ActTimeLoop1 = time.time()
+
+        # print('GT1 {0:.1f}'.format(GT1.RunMainTemp()))
+        # print('GT2 {0:.1f}'.format(VS1_GT2.RunMainTemp()))
+        # print('GT3 {0:.1f}'.format(VS1_GT3.RunMainTemp()))
+
+        # Run the sensors
+        """try:
+            self.VS1_GT1.RunMainTemp()
+        except Exception as e:
+            print('''
+                    It went wrong time: {time} with {name}... {e}
+                    ''').format(
+                time=dt.datetime.now(),
+                name=self.VS1_GT1.__class__,
+                e=e)
+        try:
+            self.VS1_GT2.RunMainTemp()
+        except Exception as e:
+            print('''
+                    It went wrong time: {time} with {name}... {e}
+                    ''').format(
+                time=dt.datetime.now(),
+                name=self.VS1_GT2.__class__,
+                e=e)
+        try:
+            self.VS1_GT3.RunMainTemp()
+        except Exception as e:
+            print('''
+                    It went wrong time: {time} with {name}... {e}
+                    ''').format(
+                time=dt.datetime.now(),
+                name=self.VS1_GT3.__class__,
+               e=e)"""
+            # try:
+            # self.SUN_GT1.RunMainTemp()
+            # except Exception, e:
+            # print('''
+            # It went wrong time: {time} with {name}... {e}
+            # ''').format(
+            # time=dt.datetime.now(),
+            # name=self.SUN_GT1.__class__,
+            # e=e)
+        '''try:
+            self.SUN_GT2.RunMainTemp()
+        except Exception as e:
+            print("""
+                    It went wrong time: {time} with {name}... {e}
+                    """).format(
+                time=dt.datetime.now(),
+                name=self.SUN_GT2.__class__,
+                e=e)
+        '''
+        # Calculate setpoint
+        self.Setpoint_VS1 = self.Komp.CountSP(self.VS1_GT3.temp)
+        self.Setpoint_Log_VS1.value = self.Setpoint_VS1
+        # print('SP {0:.1f}'.format(Setpoint_VS1))
+        self.Setpoint_Log_VS1.main()
+
+        # Run valve check
+        self.VS1_SV1_Class.main(
+            self.VS1_GT1.temp,
+            self.Setpoint_VS1,
+            self.IOVariables)
+
+        # Run timechannel check, if True, change the setpoint
+        self.VS1_SV1_SP_Down = self.time_channel_VS1_SV1.check_state()
+        self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
+
+
+    @asyncio.coroutine
     def async_1440sec(self):
         self.Weather_State = GetData()
         yield from asyncio.sleep(1440)
 
+    @asyncio.coroutine
     def async_3600sec(self):
         yield from asyncio.sleep(3600)
         self.set_three_day_temp()
