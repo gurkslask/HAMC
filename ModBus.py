@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from pymodbus3.client.sync import ModbusTcpClient
+from pymodbus3,exceptions import ConnectionException
 from ModbusDigitalInputIOCardClass import ModbusDigitalInputIOCard
 from ModbusDigitalOutputIOCardClass import ModbusDigitalOutputIOCard
+import datetime
 
 #---------------------------------------------------------------------------#
 # configure the client logging
@@ -11,7 +13,6 @@ from ModbusDigitalOutputIOCardClass import ModbusDigitalOutputIOCard
 #logging.basicConfig()
 #log = logging.getLogger()
 #log.setLevel(logging.DEBUG)
-
 def runModBus(IOVariables):
     #---------------------------------------------------------------------------#
     # choose the client you want
@@ -37,7 +38,14 @@ def runModBus(IOVariables):
     #---------------------------------------------------------------------------#
     # Run io card
     #---------------------------------------------------------------------------#
-    Digital_Out_1.WriteStatus()
+    try:
+        Digital_Out_1.WriteStatus()
+    except ConnectionException:
+        print('A connection error to the modbus occured at {}'.format(
+            datetime.datetime.now()
+            )
+        )
+        pass
     #---------------------------------------------------------------------------#
     # close the client
     #---------------------------------------------------------------------------#
