@@ -37,7 +37,15 @@ def runModBus(IOVariables):
     #---------------------------------------------------------------------------#
     # Run io card
     #---------------------------------------------------------------------------#
-    Digital_Out_1.WriteStatus()
+    try:
+        Digital_Out_1.WriteStatus()
+    except ConnectionException:
+        print('A connection error to the modbus occured at {}'.format(
+            datetime.datetime.now()
+            )
+        )
+        pass
+
     #---------------------------------------------------------------------------#
     # close the client
     #---------------------------------------------------------------------------#
