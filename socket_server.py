@@ -7,12 +7,6 @@ __author__ = 'alexander'
 
 '''socketserver'''
 
-host = 'localhost'
-port = 5004
-my_dict = {
-    'Value1': '42.24'
-}
-
 
 class EchoServerClientProtocol(asyncio.Protocol):
     def __init__(self, hdata):
@@ -26,12 +20,10 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
     def data_received(self, data):
         message = json.loads(data.decode())
-        # message = data.decode()
         print('Data received: {!r}, {}'.format(message, type(message)))
-        for i in message:
-            print(i)
-            if i is 'w':
-                for value_to_write in message[i]:
+        for read_or_write in message:
+            if read_or_write is 'w':
+                for value_to_write in message[read_or_write]:
                     value_to_write = value_to_write.split(',')
                     print('Before: {}'.format(
                         self.HAMC_data(
@@ -46,13 +38,20 @@ class EchoServerClientProtocol(asyncio.Protocol):
                             )
                         )
                     )
-            elif i is 'r':
-                for value_to_read in message[i]:
+            elif read_or_write is 'r':
+                for value_to_read in message[read_or_write]:
                     try:
-                        data_to_send = str(json.dumps(self.HAMC_data('r', value_to_read, None))).encode()
+                        data_to_send = str(
+                            json.dumps(
+                                self.HAMC_data(
+                                    'r',
+                                    value_to_read,
+                                    None
+                                    )
+                                )
+                            ).encode()
                         print('Send: {!r}'.format(data_to_send))
                         self.transport.write(data_to_send)
-
                     except KeyError:
                         data_to_send = str(
                             json.dumps(
