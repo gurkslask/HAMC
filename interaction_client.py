@@ -13,6 +13,29 @@ Home-automation menu:
                 0. Exit
 '''
 
+def change_sp():
+        value1 = input('Enter outside temperature: ')
+        value2 = input('Enter forward temperature: ')
+        try:
+            actual_value = interact_with_main({'r': ['self.Komp.DictVarden', None]})
+            actual_value[int(value1)] = int(value2)
+            interact_with_main({'w': ['self.Komp.DictVarden', actual_value]})
+        except ValueError as e:
+            print('Invalid values entered, {}'.format(e))
+
+'''choices = {
+    "1": change_sp,
+    "2": show_values,
+    "3": show_weather,
+    "4": toggle_out,
+    "5": change_nightsink,
+    "0": exit
+}'''
+choices = {
+    "1": change_sp,
+    "0": exit
+}
+
 
 class EchoClientProtocol(asyncio.Protocol):
     def __init__(self, message, loop):
@@ -25,43 +48,58 @@ class EchoClientProtocol(asyncio.Protocol):
 
     def data_received(self, data):
         print('Data received: {!r}'.format(data.decode()))
+        return data.decode()
 
     def connection_lost(self, exc):
         print('The server closed the connection')
-        print('Stop the event lop')
+        print('Stop the event loop')
         self.loop.stop()
 
-
-def interact():
+def dialoge():
     while True:
-        print('Whaddayawant?!')
-        choice = input('Yo?!')
-        if choice is 'w':
-            call_server(json.dumps({
-                'r':
-                    [
-                        'komp',
-                        'Setpoint_VS1',
-                        'Komp.DictVarden'
-                    ],
-                'w':
-                    []
-                }
-                ))
-        if choice is 's':
-            call_server(json.dumps({
-                'r':
-                    [
-                        'komp',
-                        'Setpoint_VS1',
-                        'Komp.DictVarden'
-                    ],
-                'w':
-                    [
-                        'Setpoint_VS1,42'
-                    ]
-                }
-                ))
+            print(main_menu_string)
+            choice = input('Enter number of choice:')
+            try:
+                int(choice)
+                action = choices.get(choice)
+                if action:
+                    action()
+                else:
+                    print("{0} is not a valid choice".format(choice))
+
+            except ValueError:
+                print('Choice must be a integer')
+                pass
+
+
+def interact_with_main(variable_list):
+    return call_server(json.dumps(variable_list))
+    '''if choice is 'w':
+        call_server(json.dumps({
+            'r':
+                [
+                    'komp',
+                    'Setpoint_VS1',
+                    'Komp.DictVarden'
+                ],
+            'w':
+                []
+            }
+            ))
+    if choice is 's':
+        call_server(json.dumps({
+            'r':
+                [
+                    'komp',
+                    'Setpoint_VS1',
+                    'Komp.DictVarden'
+                ],
+            'w':
+                [
+                    'Setpoint_VS1,42'
+                ]
+            }
+            ))'''
 
 
 def call_server(message):
@@ -75,4 +113,4 @@ def call_server(message):
 
 
 if __name__ == '__main__':
-    interact()
+    dialoge()

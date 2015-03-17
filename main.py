@@ -533,7 +533,7 @@ class MainLoop():
         print('using the func')
         # Method for communicating with asyncio socket server!
         self.shared_dict = {
-            'komp': self.Komp.DictVarden,
+            'self.Komp.DictVarden': self.Komp.DictVarden,
             self.VS1_CP1_Class.Name: {
                 'Out': self.VS1_CP1_Class.Out,
                 'Man': self.VS1_CP1_Class.Man,
@@ -576,7 +576,6 @@ class MainLoop():
         if read_or_write is 'r':
             return self.shared_dict[data_request]
         elif read_or_write is 'w':
-            print(self.__dict__)
             print('Changing value in main {}'.format(self.__dict__[data_request]))
             self.__dict__[data_request] = write_value
             print('Changed value in main {}'.format(self.__dict__[data_request]))
