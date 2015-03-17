@@ -8,7 +8,7 @@ from OpenCloseValveClass import OpenCloseValve
 from IOdef import IOdef
 from scraping import GetData
 from PumpControl import PumpControl
-#from ModBus import runModBus
+# from ModBus import runModBus
 import time
 import threading
 import pickle
@@ -18,26 +18,27 @@ import asyncio
 from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
 import sys
+import json
+
 
 class MainLoop():
     def __init__(self):
+        self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
         self.socket_host = '127.0.0.1'
         self.socket_port = 5004
         self.loop = asyncio.get_event_loop()
         # Each client connection will create a new protocol instance
         self.coro = self.loop.create_server(
-            EchoServerClientProtocol,
+            lambda: EchoServerClientProtocol(self.data_func),
             self.socket_host,
             self.socket_port)
-        server = self.loop.run_until_complete(self.coro)
+        self.server = self.loop.run_until_complete(self.coro)
         self.loop.create_task(self.async_5sec())
         self.loop.create_task(self.async_20sec())
         self.loop.create_task(self.async_1440sec())
         self.loop.create_task(self.async_3600sec())
-        self.loop.add_reader(sys.stdin, self.async_interaction_loop)
 
         # Serve requests until CTRL+c is pressed
-        #print('Serving on {}'.format(self.server.sockets[0].getsockname()))
 
 
         # Declare IO Variables
@@ -229,6 +230,7 @@ class MainLoop():
             # self.interact_with_flask(self.choice)
 
             # print('Loop 2')
+
             print('Var 5:e')
 
 
@@ -475,33 +477,7 @@ class MainLoop():
 
             time.sleep(5)
 
-    @asyncio.coroutine
-    def async_interaction_loop(self):
-        print('choica!')
-        choice = sys.stdin.readline()
-        print(choice)
-    '''        while True:
 
-            print("""Home-automation menu:
-                1. Change Setpoint
-                2. Show values
-                3. Show weather
-                4. Toggle test bit
-                5. Change nightsink temperature
-                0. Exit
-
-                Enter an option:
-                """)
-            # choice = input('Enter an option: ')
-            choice = yield sys.stdin
-            action = self.choices.get(choice)
-            if action:
-                action()
-            else:
-                print("{0} is not a valid choice".format(choice))
-
-            # time.sleep(5)
-    '''
     def set_three_day_temp(self):
         self.ThreeDayTemp += self.VS1_GT3.temp / 72.0
 
@@ -553,8 +529,9 @@ class MainLoop():
             # if a new day...
             self.datumtid = datetime.date.today()
 
-    def interact_with_flask(self, choice):
-        # Declare Flask shared dictionary
+    def data_func(self, read_or_write, data_request, write_value):
+        print('using the func')
+        # Method for communicating with asyncio socket server!
         self.shared_dict = {
             'komp': self.Komp.DictVarden,
             self.VS1_CP1_Class.Name: {
@@ -590,48 +567,20 @@ class MainLoop():
             self.VS1_GT2.Name: self.VS1_GT2.temp,
             self.VS1_GT3.Name: self.VS1_GT3.temp,
             self.SUN_GT2.Name: self.SUN_GT2.temp,
-            'VS1_Setpoint': self.Setpoint_VS1,
+            'Setpoint_VS1': self.Setpoint_VS1,
             'time': time.time(),
             'IOVariables': self.IOVariables,
             'update_from_flask': False,
             'update_from_main': False
         }
+        if read_or_write is 'r':
+            return self.shared_dict[data_request]
+        elif read_or_write is 'w':
+            print(self.__dict__)
+            print('Changing value in main {}'.format(self.__dict__[data_request]))
+            self.__dict__[data_request] = write_value
+            print('Changed value in main {}'.format(self.__dict__[data_request]))
 
-        '''Dump shared_dict to a pickle, or load it'''
-        if choice:
-            try:
-                with open('shared_dict', 'rb') as r:
-                    # Read the dict and see if there is an update
-                    if pickle.load(r)['update_from_flask']:
-                        print('Update from flask')
-            except IOError as e:
-                print(e)
-            with open('shared_dict', 'wb+') as f:
-                self.shared_dict['update_from_main'] = True
-                pickle.dump(self.shared_dict, f)
-        elif not choice:
-            with open('shared_dict', 'rb') as f:
-                self.shared_dict.update(pickle.load(f))
-'''
-    def interact(self):
-
-        self.loop = asyncio.get_event_loop()
-        # Each client connection will create a new protocol instance
-        self.coro = self.loop.create_server(EchoServerClientProtocol, host, port)
-        self.server = self.loop.run_until_complete(coro)
-
-        # Serve requests until CTRL+c is pressed
-        print('Serving on {}'.format(self.server.sockets[0].getsockname()))
-        try:
-            self.loop.run_forever()
-        except KeyboardInterrupt:
-            pass
-
-        # Close the server
-        self.server.close()
-        self.loop.run_until_complete(self.server.wait_closed())
-        self.loop.close()
-'''
 
 def main():
     ML = MainLoop()

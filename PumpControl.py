@@ -25,12 +25,24 @@ class PumpControl(object):
         self.T3 = 0  #total
         try:
             self.unpickla()
-        except Exception as e:
-            print('unpickla went wrong' + str(e))
+        except FileNotFoundError as e:
+            print('File not found, will create new \n' + str(e))
 
     def Documentation(self):
-        with open('Docs/' + self.Name, 'a+') as f:
-            f.write('{} went {} at {}'.format(self.Name, self.Out, time.time()))
+        try:
+            with open('Docs/' + self.Name, 'a+') as f:
+                f.write(
+                    '{} went {} at {}'.format(
+                        self.Name, self.Out, time.time()
+                        )
+                    )
+        except FileNotFoundError as e:
+            with open('Docs/' + self.Name, 'w+') as f:
+                f.write(
+                    '{} went {} at {}'.format(
+                        self.Name, self.Out, time.time()
+                        )
+                    )
 
     def main(self, DI):
         if self.Man and not self.Out:
@@ -49,8 +61,8 @@ class PumpControl(object):
 
         try:
             self.pickla()
-        except Exception as e:
-            print('pickla went wrong' + str(e))
+        except FileNotFoundError as e:
+            print('File note found, create directory pickles \n' + str(e))
 
     def NewDay(self):
         #move today to yesterday and reset today, DONT FORGET TO PUT THIS IN CHECKIFNEWDAY METHOD IN MAIN
