@@ -29,7 +29,7 @@ class MainLoop():
         self.loop = asyncio.get_event_loop()
         # Each client connection will create a new protocol instance
         self.coro = self.loop.create_server(
-            lambda: EchoServerClientProtocol(self.data_func()),
+            lambda: EchoServerClientProtocol(self.data_func),
             self.socket_host,
             self.socket_port)
         self.server = self.loop.run_until_complete(self.coro)
@@ -529,7 +529,7 @@ class MainLoop():
             # if a new day...
             self.datumtid = datetime.date.today()
 
-    def data_func(self):
+    def data_func(self, read_or_write, data_request, write_value):
         print('using the func')
         # Method for communicating with asyncio socket server!
         self.shared_dict = {
@@ -573,7 +573,8 @@ class MainLoop():
             'update_from_flask': False,
             'update_from_main': False
         }
-        return self.shared_dict
+        if read_or_write is 'r':
+            return self.shared_dict[data_request]
 
 
 def main():

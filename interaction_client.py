@@ -37,12 +37,30 @@ def interact():
         print('Whaddayawant?!')
         choice = input('Yo?!')
         if choice is 'w':
-            call_server(json.dumps(
-                [
-                    'komp',
-                    'VS1_Setpoint',
-                    'Komp.DictVarden'
-                ]
+            call_server(json.dumps({
+                'r':
+                    [
+                        'komp',
+                        'VS1_Setpoint',
+                        'Komp.DictVarden'
+                    ],
+                'w':
+                    []
+                }
+                ))
+        if choice is 's':
+            call_server(json.dumps({
+                'r':
+                    [
+                        'komp',
+                        'VS1_Setpoint',
+                        'Komp.DictVarden'
+                    ],
+                'w':
+                    [
+                        'VS1_Setpoint, 42'
+                    ]
+                }
                 ))
 
 
