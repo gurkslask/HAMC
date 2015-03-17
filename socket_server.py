@@ -25,18 +25,27 @@ class EchoServerClientProtocol(asyncio.Protocol):
         self.transport = transport
 
     def data_received(self, data):
-        message = data.decode()
+        message = json.loads(data.decode())
+        # message = data.decode()
         print('Data received: {!r}, {}'.format(message, type(message)))
+        for i in message:
+            print(i)
+            try:
+                data_to_send = str(json.dumps(self.HAMC_data[i])).encode()
+                print('Send: {!r}'.format(data_to_send))
+                self.transport.write(data_to_send)
 
-        if message == 'hej':
-            # data_to_send = my_dict['Value1']
-            # data_to_send = str(json.dumps(my_dict['Value1'])).encode()
-            data_to_send = str(json.dumps(self.HAMC_data)).encode()
-            print('Send: {!r}'.format(data_to_send))
-            self.transport.write(data_to_send)
-        else:
-            print('Send: {!r}'.format(message))
-            self.transport.write(data)
+            except KeyError:
+                data_to_send = str(
+                    json.dumps(
+                        'KeyError: {}'.format(
+                            i
+                            )
+                        )
+                    ).encode()
+                print('Send: {!r}'.format(data_to_send))
+                self.transport.write(data_to_send)
+
         print('Close the client socket')
         self.transport.close()
 

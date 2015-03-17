@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 import asyncio
+import json
 
 main_menu_string = '''
 Home-automation menu:
@@ -36,7 +37,13 @@ def interact():
         print('Whaddayawant?!')
         choice = input('Yo?!')
         if choice is 'w':
-            call_server('hej')
+            call_server(json.dumps(
+                [
+                    'komp',
+                    'VS1_Setpoint',
+                    'Komp.DictVarden'
+                ]
+                ))
 
 
 def call_server(message):
