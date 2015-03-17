@@ -567,7 +567,7 @@ class MainLoop():
             self.VS1_GT2.Name: self.VS1_GT2.temp,
             self.VS1_GT3.Name: self.VS1_GT3.temp,
             self.SUN_GT2.Name: self.SUN_GT2.temp,
-            'VS1_Setpoint': self.Setpoint_VS1,
+            'Setpoint_VS1': self.Setpoint_VS1,
             'time': time.time(),
             'IOVariables': self.IOVariables,
             'update_from_flask': False,
@@ -575,6 +575,11 @@ class MainLoop():
         }
         if read_or_write is 'r':
             return self.shared_dict[data_request]
+        elif read_or_write is 'w':
+            print(self.__dict__)
+            print('Changing value in main {}'.format(self.__dict__[data_request]))
+            self.__dict__[data_request] = write_value
+            print('Changed value in main {}'.format(self.__dict__[data_request]))
 
 
 def main():

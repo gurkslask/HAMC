@@ -31,7 +31,21 @@ class EchoServerClientProtocol(asyncio.Protocol):
         for i in message:
             print(i)
             if i is 'w':
-                pass
+                for value_to_write in message[i]:
+                    value_to_write = value_to_write.split(',')
+                    print('Before: {}'.format(
+                        self.HAMC_data(
+                            'r', value_to_write[0], None
+                            )
+                        )
+                    )
+                    self.HAMC_data('w', value_to_write[0], value_to_write[1])
+                    print('After: {}'.format(
+                        self.HAMC_data(
+                            'r', value_to_write[0], None
+                            )
+                        )
+                    )
             elif i is 'r':
                 for value_to_read in message[i]:
                     try:

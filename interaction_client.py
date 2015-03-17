@@ -41,7 +41,7 @@ def interact():
                 'r':
                     [
                         'komp',
-                        'VS1_Setpoint',
+                        'Setpoint_VS1',
                         'Komp.DictVarden'
                     ],
                 'w':
@@ -53,12 +53,12 @@ def interact():
                 'r':
                     [
                         'komp',
-                        'VS1_Setpoint',
+                        'Setpoint_VS1',
                         'Komp.DictVarden'
                     ],
                 'w':
                     [
-                        'VS1_Setpoint, 42'
+                        'Setpoint_VS1,42'
                     ]
                 }
                 ))
