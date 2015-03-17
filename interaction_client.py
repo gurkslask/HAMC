@@ -15,6 +15,7 @@ Home-automation menu:
                 0. Exit
 '''
 
+
 def change_sp():
         value1 = input('Enter outside temperature: ')
         value2 = input('Enter forward temperature: ')
@@ -60,6 +61,7 @@ class EchoClientProtocol(asyncio.Protocol):
         print('Stop the event loop')
         self.loop.stop()
 
+
 def dialoge():
     while True:
             print(main_menu_string)
@@ -71,8 +73,6 @@ def dialoge():
                     action()
                 else:
                     print("{0} is not a valid choice".format(choice))
-
-
             except ValueError:
                 print('Choice must be a integer')
                 pass
@@ -86,6 +86,7 @@ def conn(message, loop):
     # protocol_object =  EchoClientProtocol(message,loop)
     return lambda: EchoClientProtocol(message, loop)
 
+
 def call_server(message):
     loop = asyncio.get_event_loop()
     coro = loop.create_connection(conn(message, loop),
@@ -94,33 +95,6 @@ def call_server(message):
     loop.run_forever()
     loop.close()
 
-'''if choice is 'w':
-        call_server(json.dumps({
-            'r':
-                [
-                    'komp',
-                    'Setpoint_VS1',
-                    'Komp.DictVarden'
-                ],
-            'w':
-                []
-            }
-            ))
-    if choice is 's':
-        call_server(json.dumps({
-            'r':
-                [
-                    'komp',
-                    'Setpoint_VS1',
-                    'Komp.DictVarden'
-                ],
-            'w':
-                [
-                    'Setpoint_VS1,42'
-                ]
-            }
-            ))
-'''
 
 if __name__ == '__main__':
     dialoge()
