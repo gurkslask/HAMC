@@ -3,6 +3,8 @@
 import asyncio
 import json
 
+glob_var = None
+
 main_menu_string = '''
 Home-automation menu:
                 1. Change Setpoint
@@ -17,7 +19,8 @@ def change_sp():
         value1 = input('Enter outside temperature: ')
         value2 = input('Enter forward temperature: ')
         try:
-            actual_value = interact_with_main({'r': ['self.Komp.DictVarden', None]})
+            actual_value = interact_with_main({'r': ['self.Komp.DictVarden']})
+            print(actual_value)
             actual_value[int(value1)] = int(value2)
             interact_with_main({'w': ['self.Komp.DictVarden', actual_value]})
         except ValueError as e:
@@ -47,8 +50,10 @@ class EchoClientProtocol(asyncio.Protocol):
         print('Data sent: {!r}'.format(self.message))
 
     def data_received(self, data):
+        self.decoded_data = data.decode()
         print('Data received: {!r}'.format(data.decode()))
-        return data.decode()
+        glob_var = self.decoded_data
+        print(glob_var)
 
     def connection_lost(self, exc):
         print('The server closed the connection')
@@ -67,6 +72,7 @@ def dialoge():
                 else:
                     print("{0} is not a valid choice".format(choice))
 
+
             except ValueError:
                 print('Choice must be a integer')
                 pass
@@ -74,7 +80,21 @@ def dialoge():
 
 def interact_with_main(variable_list):
     return call_server(json.dumps(variable_list))
-    '''if choice is 'w':
+
+
+def conn(message, loop):
+    # protocol_object =  EchoClientProtocol(message,loop)
+    return lambda: EchoClientProtocol(message, loop)
+
+def call_server(message):
+    loop = asyncio.get_event_loop()
+    coro = loop.create_connection(conn(message, loop),
+                                  '127.0.0.1', 5004)
+    loop.run_until_complete(coro)
+    loop.run_forever()
+    loop.close()
+
+'''if choice is 'w':
         call_server(json.dumps({
             'r':
                 [
@@ -99,18 +119,8 @@ def interact_with_main(variable_list):
                     'Setpoint_VS1,42'
                 ]
             }
-            ))'''
-
-
-def call_server(message):
-    loop = asyncio.get_event_loop()
-    # message = 'Hello World!'
-    coro = loop.create_connection(lambda: EchoClientProtocol(message, loop),
-                                  '127.0.0.1', 5004)
-    loop.run_until_complete(coro)
-    loop.run_forever()
-    # loop.close()
-
+            ))
+'''
 
 if __name__ == '__main__':
     dialoge()
