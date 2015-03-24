@@ -563,7 +563,7 @@ class MainLoop():
                 'Open_IO': self.VS1_SV1_Class.Open_IO,
                 'Close_IO': self.VS1_SV1_Class.Close_IO
             },
-            self.VS1_GT1.Name: self.VS1_GT1.temp,
+            'VS1_GT1': self.VS1_GT1.temp,
             self.VS1_GT2.Name: self.VS1_GT2.temp,
             self.VS1_GT3.Name: self.VS1_GT3.temp,
             self.SUN_GT2.Name: self.SUN_GT2.temp,

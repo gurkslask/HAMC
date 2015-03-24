@@ -68,3 +68,23 @@ class EchoServerClientProtocol(asyncio.Protocol):
 
     def data_send(self, data):
         self.transport.write(data)
+
+
+class EchoServerClientProtocol3(asyncio.Protocol):
+    def __init__(self, hdata):
+        # data_func method
+        self.HAMC_data = hdata
+
+    def connection_made(self, transport):
+        peername = transport.get_extra_info('peername')
+        print('Connection from {}'.format(peername))
+        self.transport = transport
+
+    def data_received(self, data):
+        message = data.decode()
+        print('Data received: {!r}, {}'.format(message, type(message)))
+        print('Close the client socket')
+        self.transport.close()
+
+    def data_send(self, data):
+        self.transport.write(data)
