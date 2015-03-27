@@ -33,12 +33,11 @@ def change_sp():
         value2 = input('Enter forward temperature: ')
         try:
             actual_value = call_server({'r': ['self.Komp.DictVarden']})
-            print(actual_value[1:])
-            print(dict(actual_value[1:]))
-            print(type(actual_value))
+            print(actual_value, type(actual_value))
+            #actual_value = dict(actual_value)
             actual_value[str(value1)] = int(value2)
-            interact_with_main({'w': ['self.Komp.DictVarden', actual_value]})
-        except ValueError as e:
+            call_server({'w': ['self.Komp.DictVarden', actual_value]})
+        except SyntaxError as e:
             print('Invalid values entered, {}'.format(e))
 
 
@@ -50,7 +49,8 @@ choices = {
 
 
 def dialoge():
-    while True:
+    stop = False
+    while not stop:
         print(main_menu_string)
         choice = input('Enter number of choice:')
         try:
@@ -60,9 +60,10 @@ def dialoge():
                 action()
             else:
                 print("{0} is not a valid choice".format(choice))
-        except ValueError:
+        except SyntaxError:
             print('Choice must be a integer')
             pass
+        stop=True
 
 
 # Echo client program
@@ -75,7 +76,7 @@ def call_server(message):
     s.sendall(message.encode())
     data = s.recv(1024)
     s.close()
-    return repr(data)
+    return json.loads(data.decode())
     # print 'Received', repr(data)
 
 def data_handler(data):
