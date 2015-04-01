@@ -26,9 +26,23 @@ def show_weather():
     print(message)
 
 def show_values():
-    message = {'r': ['VS1_GT1', 'VS1_GT2']}
+    message = {'r': ['self.VS1_GT1.temp',
+                     'self.VS1_GT2.temp',
+                     'self.VS1_GT3.temp',
+                     'self.SUN_GT2.temp',
+                     'self.Setpoint_VS1',
+                     'self.VS1_SV1_SP_Down',
+                     'self.Komp.DictVarden'
+    ]}
     message = call_server(message)
-    print(message)
+    print('GT1 {}'.format(message['self.VS1_GT1.temp']))
+    print('GT2 {}'.format(message['self.VS1_GT2.temp']))
+    print('GT3 {}'.format(message['self.VS1_GT3.temp']))
+    # print('Solpanel - GT1 - uppe {}'.format(self.SUN_GT1.temp))
+    print('Solpanel - GT2 - nere {}'.format(message['self.SUN_GT2.temp']))
+    print('SP {}'.format(message['self.Setpoint_VS1']))
+    print('Nattsänkning {}'.format(message['self.VS1_SV1_SP_Down']))
+    print('Börvärde{}'.format(message['self.Komp.DictVarden']))
 
 
 def change_sp():
