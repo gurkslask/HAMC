@@ -117,15 +117,6 @@ class MainLoop():
         self.VS1_CP1_Class.Comment = ('''This is the pump that supplies
          the heating radiators with hot water''')
 
-        # Interaction menu
-        self.choices = {
-            "1": self.change_sp,
-            "2": self.show_values,
-            "3": self.show_weather,
-            "4": self.toggle_out,
-            "5": self.change_nightsink,
-            "0": self.exit
-        }
         # Declare variebles
         self.Weather_State = ''
         self.exit_flag = False
@@ -508,12 +499,6 @@ class MainLoop():
         print('Nattsänkning {}'.format(self.VS1_SV1_SP_Down))
         print('Börvärde{}'.format(self.Komp.DictVarden))
 
-    def show_weather(self):
-        print(self.Weather_State)
-
-    def toggle_out(self):
-        self.IOVariables['b_Test']['Value'] = not self.IOVariables['b_Test']['Value']
-        print('b_test info: {testvar}'.format(testvar=self.IOVariables['b_Test']))
 
     def exit(self):
         print('System exits...')
@@ -571,14 +556,18 @@ class MainLoop():
             'time': time.time(),
             'IOVariables': self.IOVariables,
             'update_from_flask': False,
-            'update_from_main': False
+            'update_from_main': False,
+            'self.Komp.value_to_lower': self.Komp.value_to_lower,
+            'self.Weather_State': self.Weather_State
         }
         if read_or_write is 'r':
             return self.shared_dict[data_request]
         elif read_or_write is 'w':
-            print('Changing value in main {}'.format(self.__dict__[data_request]))
-            self.__dict__[data_request] = write_value
-            print('Changed value in main {}'.format(self.__dict__[data_request]))
+            print('Changing value in main {}'.format(eval(data_request)))
+            exec('{} = {}'.format(data_request, write_value))
+            print('Changed value in main {}'.format(eval(data_request)))
+
+
 
 
 def main():
