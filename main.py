@@ -201,7 +201,7 @@ class MainLoop():
 
             '''Run check if the radiator pump should go,
                  if out temperature is under 10 degrees
-                '''
+            '''
             self.VS1_CP1_Class.Man = self.ThreeDayTemp < 10.0
 
             # Run control of sun warming pump
@@ -223,9 +223,6 @@ class MainLoop():
         while True:
             yield from asyncio.sleep(20)
             # 20 seconds loop
-            # Reset time for next loop
-            self.ActTimeLoop1 = time.time()
-
 
             # Run the sensors
             try:
@@ -264,7 +261,7 @@ class MainLoop():
                 # time=dt.datetime.now(),
                 # name=self.SUN_GT1.__class__,
                 # e=e)
-            '''try:
+            try:
                 self.SUN_GT2.RunMainTemp()
             except Exception as e:
                 print("""
@@ -273,7 +270,7 @@ class MainLoop():
                     time=dt.datetime.now(),
                     name=self.SUN_GT2.__class__,
                     e=e)
-            '''
+
             # Calculate setpoint
             self.Setpoint_VS1 = self.Komp.CountSP(self.VS1_GT3.temp)
             self.Setpoint_Log_VS1.value = self.Setpoint_VS1
@@ -314,16 +311,6 @@ class MainLoop():
         print('SP {0:.1f}'.format(self.Setpoint_VS1))
         print('Nattsänkning {}'.format(self.VS1_SV1_SP_Down))
         print('Börvärde{}'.format(self.Komp.DictVarden))
-
-
-    def exit(self):
-        print('System exits...')
-        # shutdown_server()
-        print('System exits...')
-        self.exit_flag = True
-        print('System exits...')
-        time.sleep(5)
-        raise SystemExit
 
     def check_if_new_day(self):
         if self.datumtid.day != dt.date.today().day:
