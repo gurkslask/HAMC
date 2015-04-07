@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
-import socket
 import pickle
+from connect_to_socket import call_server
 
 main_menu_string = '''
 Home-automation menu:
@@ -94,18 +94,6 @@ def dialoge():
         # stop=True
 
 
-# Echo client program
-def call_server(message):
-    message = pickle.dumps(message)
-    HOST = '192.168.1.8'    # The remote host
-    PORT = 5004              # The same port as used by the server
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-    s.sendall(message)
-    data = s.recv(1024)
-    s.close()
-    return pickle.loads(data)
-    # print 'Received', repr(data)
 
 if __name__ == '__main__':
     dialoge()
