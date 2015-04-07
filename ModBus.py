@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from pymodbus3.client.sync import ModbusTcpClient
-from pymodbus3,exceptions import ConnectionException
+from pymodbus3.exceptions import ConnectionException
 from ModbusDigitalInputIOCardClass import ModbusDigitalInputIOCard
 from ModbusDigitalOutputIOCardClass import ModbusDigitalOutputIOCard
 import datetime
@@ -46,6 +46,7 @@ def runModBus(IOVariables):
             )
         )
         pass
+
     #---------------------------------------------------------------------------#
     # close the client
     #---------------------------------------------------------------------------#

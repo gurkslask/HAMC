@@ -18,7 +18,7 @@ from socket_server import EchoServerClientProtocol
 class MainLoop():
     def __init__(self):
         self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
-        self.socket_host = '127.0.0.1'
+        self.socket_host = '0.0.0.0'
         self.socket_port = 5004
         self.loop = asyncio.get_event_loop()
         # Each client connection will create a new protocol instance
