@@ -362,7 +362,8 @@ class MainLoop():
             'update_from_flask': False,
             'update_from_main': False,
             'self.Komp.value_to_lower': self.Komp.value_to_lower,
-            'self.Weather_State': self.Weather_State
+            'self.Weather_State': self.Weather_State,
+            'self.ThreeDayTemp': self.ThreeDayTemp
         }
         if read_or_write is 'r':
             return self.shared_dict[data_request]
