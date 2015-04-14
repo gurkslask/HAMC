@@ -32,7 +32,8 @@ def show_values():
                      'self.SUN_GT2.temp',
                      'self.Setpoint_VS1',
                      'self.VS1_SV1_SP_Down',
-                     'self.Komp.DictVarden'
+                     'self.Komp.DictVarden',
+                     'self.ThreeDayTemp'
     ]}
     message = call_server(message)
     print('GT1 {0:.1f}'.format(message['self.VS1_GT1.temp']))
@@ -43,6 +44,7 @@ def show_values():
     print('SP {0:.1f}'.format(message['self.Setpoint_VS1']))
     print('Nattsänkning {}'.format(message['self.VS1_SV1_SP_Down']))
     print('Börvärde{}'.format(message['self.Komp.DictVarden']))
+    print('Tredagarstemp: {}'.format(message['self.ThreeDayTemp']))
 
 
 def change_sp():
