@@ -300,7 +300,7 @@ class MainLoop():
             self.set_three_day_temp()
 
     def set_three_day_temp(self):
-        self.ThreeDayTemp += self.VS1_GT3.temp / 72.0
+        self.ThreeDayTemp += (self.VS1_GT3.temp / 72.0) - self.ThreeDayTemp / 72.0
 
     def show_values(self):
         print('GT1 {0:.1f}'.format(self.VS1_GT1.temp))
