@@ -200,9 +200,9 @@ class MainLoop():
                 # self.VS1_CP2_Class.Out)
 
             '''Run check if the radiator pump should go,
-                 if out temperature is under 10 degrees
+                 if out temperature is under 14 degrees
             '''
-            self.VS1_CP1_Class.Man = self.ThreeDayTemp < 10.0
+            self.VS1_CP1_Class.Man = self.ThreeDayTemp < 14.0
 
             # Run control of sun warming pump
             self.VS1_CP1_Class.main(0)
