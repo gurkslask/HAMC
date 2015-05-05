@@ -18,4 +18,5 @@ def call_server(message):
     # print 'Received', repr(data)
 
 if __name__ == '__main__':
-    call_server(sys.argv[1])
+    with open(sys.argv[1]) as f:
+        call_server(f.read())
