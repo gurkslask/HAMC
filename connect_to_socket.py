@@ -18,4 +18,5 @@ def call_server(message):
     # print 'Received', repr(data)
 
 if __name__ == '__main__':
-    call_server(sys.argv[1])
+    command = sys.argv[1].replace('\n', ''), split(':')
+    print(call_server({command[0], command[1]}))
