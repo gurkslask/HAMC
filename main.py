@@ -13,9 +13,13 @@ import datetime as dt
 import asyncio
 from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
+from cold_retain import cold_retain, cold_retain_load
 
 
 class MainLoop():
+
+    def coldretainload(self):
+        self.__dict__.update(cold_retain_load(self))
     def __init__(self):
         self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
         self.socket_host = '0.0.0.0'
@@ -180,7 +184,13 @@ class MainLoop():
         self.server.close()
         self.loop.run_until_complete(self.server.wait_closed())
         self.loop.close()
+        try:
+            self.coldretainload()
+        except as e:
+            print('Could not find coldretain file {}'.format(e))
 
+    def coldretain(self, list_with_vars):
+        cold_retain(self, list_with_vars)
 
     @asyncio.coroutine
     def async_5sec(self):
@@ -216,6 +226,7 @@ class MainLoop():
                 runModBus(self.IOVariables)
             except Exception as e:
                 print('Something went wrong with the modbus!')
+            self.coldretain(self, ['ThreeDayTemp'])
 
 
     @asyncio.coroutine
