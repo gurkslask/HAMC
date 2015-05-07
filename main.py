@@ -20,6 +20,7 @@ class MainLoop():
 
     def coldretainload(self):
         self.__dict__.update(cold_retain_load(self))
+
     def __init__(self):
         self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
         self.socket_host = '0.0.0.0'
@@ -186,7 +187,7 @@ class MainLoop():
         self.loop.close()
         try:
             self.coldretainload()
-        except as e:
+        except Exception as e:
             print('Could not find coldretain file {}'.format(e))
 
     def coldretain(self, list_with_vars):
@@ -226,7 +227,7 @@ class MainLoop():
                 runModBus(self.IOVariables)
             except Exception as e:
                 print('Something went wrong with the modbus!')
-            self.coldretain(self, ['ThreeDayTemp'])
+            self.coldretain(['ThreeDayTemp'])
 
 
     @asyncio.coroutine
