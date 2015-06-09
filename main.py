@@ -187,7 +187,7 @@ class MainLoop():
         self.loop.close()
         try:
             self.coldretainload()
-        except Exception as e:
+        except FileNotFoundError as e:
             print('Could not find coldretain file {}'.format(e))
 
     def coldretain(self, list_with_vars):

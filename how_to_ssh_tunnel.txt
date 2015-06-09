@@ -1,0 +1,1 @@
+ssh -f pi@ip-number -L 5004:ip-number:5004 -N
