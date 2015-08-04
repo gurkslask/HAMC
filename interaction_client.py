@@ -23,7 +23,7 @@ def change_nightsink():
 def show_weather():
     message = {'r': ['Weather_State']}
     message = call_server(message)
-    print(message['Weather_State')
+    print(message['Weather_State'])
 
 def show_values():
     message = {'r': ['VS1_GT1',
