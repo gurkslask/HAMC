@@ -364,7 +364,7 @@ class MainLoop():
                 'Close_IO': self.VS1_SV1_Class.Close_IO
             },
             'VS1_GT1': {
-                PV: self.VS1_GT1.temp
+                'PV': self.VS1_GT1.temp
             },
             'self.VS1_SV1_SP_Down': self.VS1_SV1_SP_Down,
             'self.VS1_GT2.temp': self.VS1_GT2.temp,
