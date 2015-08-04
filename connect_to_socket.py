@@ -7,7 +7,7 @@ import sys
 # Echo client program
 def call_server(message):
     message = pickle.dumps(message)
-    HOST = '127.0.0.1'    # The remote host
+    HOST = '192.168.1.8'    # The remote host
     PORT = 5004              # The same port as used by the server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((HOST, PORT))
