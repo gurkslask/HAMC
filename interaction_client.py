@@ -18,40 +18,40 @@ def change_nightsink():
     except ValueError as e:
         print('Value {} is not a float'.format(nightsink))
     finally:
-        call_server({'w': [['self.Komp.value_to_lower', nightsink]]})
+        call_server({'w': [['Komp.value_to_lower', nightsink]]})
 
 def show_weather():
-    message = {'r': ['self.Weather_State']}
+    message = {'r': ['Weather_State']}
     message = call_server(message)
-    print(message)
+    print(message['Weather_State')
 
 def show_values():
-    message = {'r': ['self.VS1_GT1.temp',
-                     'self.VS1_GT2.temp',
-                     'self.VS1_GT3.temp',
-                     'self.SUN_GT2.temp',
-                     'self.Setpoint_VS1',
-                     'self.VS1_SV1_SP_Down',
-                     'self.Komp.DictVarden',
-                     'self.ThreeDayTemp'
+    message = {'r': ['VS1_GT1',
+                     'VS1_GT2',
+                     'VS1_GT3',
+                     'SUN_GT2',
+                     'Setpoint_VS1',
+                     'VS1_SV1_SP_Down',
+                     'Komp',
+                     'ThreeDayTemp'
     ]}
     message = call_server(message)
-    print('GT1 {0:.1f}'.format(message['self.VS1_GT1.temp']))
-    print('GT2 {0:.1f}'.format(message['self.VS1_GT2.temp']))
-    print('GT3 {0:.1f}'.format(message['self.VS1_GT3.temp']))
-    # print('Solpanel - GT1 - uppe {0:.1f}'.format(self.SUN_GT1.temp))
-    print('Solpanel - GT2 - nere {0:.1f}'.format(message['self.SUN_GT2.temp']))
-    print('SP {0:.1f}'.format(message['self.Setpoint_VS1']))
-    print('Nattsänkning {}'.format(message['self.VS1_SV1_SP_Down']))
-    print('Börvärde{}'.format(message['self.Komp.DictVarden']))
-    print('Tredagarstemp: {}'.format(message['self.ThreeDayTemp']))
+    print('GT1 {0:.1f}'.format(message['VS1_GT1.temp']))
+    print('GT2 {0:.1f}'.format(message['VS1_GT2.temp']))
+    print('GT3 {0:.1f}'.format(message['VS1_GT3.temp']))
+    # print('Solpanel - GT1 - uppe {0:.1f}'.format(SUN_GT1.temp))
+    print('Solpanel - GT2 - nere {0:.1f}'.format(message['SUN_GT2.temp']))
+    print('SP {0:.1f}'.format(message['Setpoint_VS1']))
+    print('Nattsänkning {}'.format(message['VS1_SV1_SP_Down']))
+    print('Börvärde{}'.format(message['Komp.DictVarden']))
+    print('Tredagarstemp: {}'.format(message['ThreeDayTemp']))
 
 
 def change_sp():
         value1 = input('Enter outside temperature: ')
         value2 = input('Enter forward temperature: ')
         try:
-            request_string = 'self.Komp.DictVarden'
+            request_string = 'Komp.DictVarden'
             actual_value = call_server({'r': [request_string]})[request_string]
             print(actual_value, type(actual_value))
             #actual_value = dict(actual_value)
@@ -60,7 +60,7 @@ def change_sp():
             call_server({'w':
                 [
                     [
-                        'self.Komp.DictVarden', actual_value
+                        'Komp.DictVarden', actual_value
                     ]
                 ]
             })

@@ -333,7 +333,7 @@ class MainLoop():
         print('using the func')
         # Method for communicating with asyncio socket server!
         self.shared_dict = {
-            'self.Komp.DictVarden': self.Komp.DictVarden,
+            'Komp': {'DictVarden': self.Komp.DictVarden},
             self.VS1_CP1_Class.Name: {
                 'Out': self.VS1_CP1_Class.Out,
                 'Man': self.VS1_CP1_Class.Man,
@@ -366,18 +366,18 @@ class MainLoop():
             'VS1_GT1': {
                 'PV': self.VS1_GT1.temp
             },
-            'self.VS1_SV1_SP_Down': self.VS1_SV1_SP_Down,
-            'self.VS1_GT2.temp': self.VS1_GT2.temp,
-            'self.VS1_GT3.temp': self.VS1_GT3.temp,
-            'self.SUN_GT2.temp': self.SUN_GT2.temp,
-            'self.Setpoint_VS1': self.Setpoint_VS1,
-            'time': time.time(),
-            'IOVariables': self.IOVariables,
+            'VS1_SV1_SP_Down': {'SP_Down': self.VS1_SV1_SP_Down},
+            'VS1_GT2': {'PV': self.VS1_GT2.temp},
+            'VS1_GT3': {'PV': self.VS1_GT3.temp},
+            'SUN_GT2': {'PV': self.SUN_GT2.temp},
+            'Setpoint_VS1': {'SP': self.Setpoint_VS1},
+            'time': {'time': time.time()},
+            'IOVariables': {'IOVar': self.IOVariables},
             'update_from_flask': False,
             'update_from_main': False,
-            'self.Komp.value_to_lower': self.Komp.value_to_lower,
-            'self.Weather_State': self.Weather_State,
-            'self.ThreeDayTemp': self.ThreeDayTemp
+            'Komp.value_to_lower': {'value_to_lower': self.Komp.value_to_lower},
+            'Weather_State': {'Weather_State': self.Weather_State},
+            'ThreeDayTemp': {'ThreeDayTemp': self.ThreeDayTemp}
         }
         if read_or_write is 'r':
             return self.shared_dict[data_request]
