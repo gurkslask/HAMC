@@ -36,14 +36,14 @@ def show_values():
                      'ThreeDayTemp'
     ]}
     message = call_server(message)
-    print('GT1 {0:.1f}'.format(message['VS1_GT1.temp']))
-    print('GT2 {0:.1f}'.format(message['VS1_GT2.temp']))
-    print('GT3 {0:.1f}'.format(message['VS1_GT3.temp']))
-    # print('Solpanel - GT1 - uppe {0:.1f}'.format(SUN_GT1.temp))
-    print('Solpanel - GT2 - nere {0:.1f}'.format(message['SUN_GT2.temp']))
-    print('SP {0:.1f}'.format(message['Setpoint_VS1']))
+    print('GT1 {0:.1f}'.format(message['VS1_GT1']['PV']))
+    print('GT2 {0:.1f}'.format(message['VS1_GT2']['PV']))
+    print('GT3 {0:.1f}'.format(message['VS1_GT3']['PV']))
+    # print('Solpanel - GT1 - uppe {0:.1f}'.format(SUN_GT1))
+    print('Solpanel - GT2 - nere {0:.1f}'.format(message['SUN_GT2']['PV']))
+    print('SP {0:.1f}'.format(message['Setpoint_VS1']['SP']))
     print('Nattsänkning {}'.format(message['VS1_SV1_SP_Down']))
-    print('Börvärde{}'.format(message['Komp.DictVarden']))
+    print('Börvärde{}'.format(message['Komp']['DictVarden']))
     print('Tredagarstemp: {}'.format(message['ThreeDayTemp']))
 
 
