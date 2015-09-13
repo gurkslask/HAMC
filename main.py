@@ -290,10 +290,11 @@ class MainLoop():
             self.Setpoint_Log_VS1.main()
 
             # Run valve check
-            self.VS1_SV1_Class.main(
-                self.VS1_GT1.temp,
-                self.Setpoint_VS1,
-                self.IOVariables)
+            if self.VS1_CP1_Class.Out:
+                self.VS1_SV1_Class.main(
+                    self.VS1_GT1.temp,
+                    self.Setpoint_VS1,
+                    self.IOVariables)
 
             # Run timechannel check, if True, change the setpoint
             self.VS1_SV1_SP_Down = self.time_channel_VS1_SV1.check_state()
