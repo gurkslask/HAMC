@@ -46,8 +46,8 @@ class MainLoop():
         # Declare temperaturecompensation
         self.Komp = Kompensering()
         self.Komp.SetVarden(20, 17)
-        self.Komp.SetVarden(-10, 40)
-        self.Komp.SetVarden(0, 35)
+        self.Komp.SetVarden(-10, 50)
+        self.Komp.SetVarden(0, 40)
         self.Komp.SetVarden(10, 30)
         self.Komp.SetVarden(-20, 65)
         self.Komp.SetMax(65)
