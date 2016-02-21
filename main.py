@@ -383,9 +383,10 @@ class MainLoop():
         if read_or_write is 'r':
             return self.shared_dict[data_request]
         elif read_or_write is 'w':
-            print('Changing value in main {}'.format(eval(data_request)))
-            exec('self.shared_dict[{}] = {}'.format(data_request, write_value))
-            print('Changed value in main {}'.format(eval(data_request)))
+            print('Changing value in main data request {} writevalue {}'.format(data_request, write_value))
+            print('self.shared_dict[{}] = {}'.format(data_request, write_value))
+            exec("self.shared_dict['{}'] = {}".format(data_request, write_value))
+            print('Changed value in main {}'.format(data_request))
 
 
 

@@ -52,18 +52,13 @@ def change_sp():
         value2 = input('Enter forward temperature: ')
         try:
             request_string = 'Komp.DictVarden'
-            actual_value = call_server({'r': [request_string]})[request_string]
+            actual_value = call_server({'r': ['Komp']})
             print(actual_value, type(actual_value))
+            print(actual_value['Komp']['DictVarden'])
             #actual_value = dict(actual_value)
-            actual_value[int(value1)] = int(value2)
+            actual_value['Komp']['DictVarden'][int(value1)] = int(value2)
             print(actual_value, type(actual_value))
-            call_server({'w':
-                [
-                    [
-                        'Komp.DictVarden', actual_value
-                    ]
-                ]
-            })
+            call_server({'w': [['Komp', actual_value]]})
 
 
         except SyntaxError as e:
