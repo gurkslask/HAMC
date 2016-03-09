@@ -20,7 +20,7 @@ def call_server(message):
     s.sendall(jdata.encode('utf-8'))
     data = s.recv(1024)
     s.close()
-    return json.loads(data)
+    return json.loads(data.decode('utf-8'))
     # print 'Received', repr(data)
 
 if __name__ == '__main__':
