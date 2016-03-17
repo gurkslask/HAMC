@@ -58,7 +58,7 @@ def change_sp():
             #actual_value = dict(actual_value)
             actual_value['Komp']['DictVarden'][int(value1)] = int(value2)
             print(actual_value, type(actual_value))
-            call_server({'w': [['self.Komp.DictVarden', actual_value]]})
+            call_server({'w': [['self.Komp.DictVarden', actual_value['Komp']['DictVarden']]]})
 
 
         except SyntaxError as e:
