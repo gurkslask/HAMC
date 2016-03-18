@@ -33,6 +33,7 @@ def show_values():
                      'Setpoint_VS1',
                      'VS1_SV1_SP_Down',
                      'Komp',
+                     'Komp.value_to_lower',
                      'ThreeDayTemp'
     ]}
     message = call_server(message)
@@ -42,6 +43,7 @@ def show_values():
     # print('Solpanel - GT1 - uppe {0:.1f}'.format(SUN_GT1))
     print('Solpanel - GT2 - nere {0:.1f}'.format(message['SUN_GT2']['PV']))
     print('SP {0:.1f}'.format(message['Setpoint_VS1']['SP']))
+    print('Offset nattsankning: {}'.format(message['Komp.value_to_lower']))
     print('Nattsänkning {}'.format(message['VS1_SV1_SP_Down']))
     print('Börvärde{}'.format(message['Komp']['DictVarden']))
     print('Tredagarstemp: {}'.format(message['ThreeDayTemp']))
