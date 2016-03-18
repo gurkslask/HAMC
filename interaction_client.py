@@ -18,7 +18,7 @@ def change_nightsink():
     except ValueError as e:
         print('Value {} is not a float'.format(nightsink))
     finally:
-        call_server({'w': [['Komp.value_to_lower', nightsink]]})
+        call_server({'w': [['self.Komp.value_to_lower', nightsink]]})
 
 def show_weather():
     message = {'r': ['Weather_State']}
