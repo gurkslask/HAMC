@@ -68,7 +68,7 @@ class DS1820():
                     self.temp = data
                     return data
         except FileNotFoundError as e:
-            print('File not found ! \n {}'.format(e))
+            print('File not found: \n {} \ n at {}'.format(e, '%H-%M-%S'))
 
     def RunMainTemp(self):
         '''This is where the magic happens'''
