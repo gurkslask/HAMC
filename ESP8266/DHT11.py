@@ -1,16 +1,22 @@
-"""Reads temperature and humidity from a import DHT11 with a ESP8266."""
+"""Reads temperature and humidity from a DHT11 with a ESP8266 via MQTT."""
 from machine import Pin
 from dht import DHT11
-from time import sleep
-import socket
+import time
+import ubinascii
+from umqtt.simple import MQTTClient
 
 d = DHT11(Pin(0))
-s = socket.socket()
-addr = ('192.168.1.139', 5004)
+SERVER = '192.168.1.139'
+CLIENT_ID = ubinascii.hexlify(machine.unique_id())
+TOPIC = b"kgrund"
 
-while True:
-    # d.measure()
-    s.connect(addr)
-    s.sendall(b'1')
-    print('runt')
-    sleep(5)
+def main(server=SERVER):
+    """Measure and talk to MQTT broker"""
+    c = MQTTClient(CLIENT_ID, server)
+    c.connect
+    print("Connected to {}".format(server))
+    while true:
+        d.measure()
+        print("humidity: {}".format(d.humidity())
+        c.publish(TOPIC, bytes(d.humidity()))
+        time.sleep(20)
