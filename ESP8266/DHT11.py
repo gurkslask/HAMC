@@ -18,7 +18,7 @@ def main(server=SERVER):
     # print('Connected to {}'.format(server))
     """while True:
         d.measure()
-        c.publish(TOPIC, 42)
+        c.publish(TOPIC, d.humidity())
         time.sleep(20)"""
     c.publish(TOPIC, b"hello")
     c.disconnect()
