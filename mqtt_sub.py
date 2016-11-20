@@ -14,12 +14,16 @@ def on_message(client, userdata, msg):
     """Callback on new message."""
     try:
         with open('mqtt_values.json', 'r') as f:
-            json_data = json.loads(f)
-    except FileNotFoundError as e:
+            json_data = json.loads(f.read())
+    except FileNotFoundError:
+        json_data = dict()
         print('filenotfound, will create')
-    json_data[msq.topic] = msg.payload
+    except json.decoder.JSONDecodeError:
+        json_data = dict()
+        print('Empty json file')
+    json_data[msg.topic] = str(msg.payload)
     with open('mqtt_values.json', 'w') as f:
-        json.dumps(json_data, f)
+        f.write(json.dumps(json_data))
     print(msg.topic + str(msg.payload))
 
 client = mqtt.Client()
