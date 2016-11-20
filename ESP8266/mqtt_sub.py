@@ -3,6 +3,8 @@ import paho.mqtt.client as mqtt
 def on_connect(client, userdata, flags, rc):
     print(rc)
     client.subscribe("kgrund/fukt")
+    client.subscribe("kgrund/temp")
+
 
 def on_message(client, userdata, msg):
     print(msg.topic + str(msg.payload))
