@@ -19,7 +19,9 @@ from cold_retain import cold_retain, cold_retain_load
 class MainLoop():
 
     def coldretainload(self):
-        self.__dict__.update(cold_retain_load(self))
+        self.cold_retain_values = cold_retain_load(self)
+        print('Loading cold retain: {}'.format(self.cold_retain_values))
+        self.__dict__.update(self.cold_retain_values)
 
     def __init__(self):
         self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
@@ -46,10 +48,10 @@ class MainLoop():
         # Declare temperaturecompensation
         self.Komp = Kompensering()
         self.Komp.SetVarden(20, 17)
-        self.Komp.SetVarden(10, 28)
-        self.Komp.SetVarden(0, 35)
-        self.Komp.SetVarden(-10, 45)
-        self.Komp.SetVarden(-20, 60)
+        self.Komp.SetVarden(10, 25)
+        self.Komp.SetVarden(0, 33)
+        self.Komp.SetVarden(-10, 42)
+        self.Komp.SetVarden(-20, 57)
         self.Komp.SetMax(65)
         self.Komp.SetMin(20)
 
@@ -176,6 +178,12 @@ class MainLoop():
                 (dt.time(14, 0), False),
                 (dt.time(9, 0), True)
         ]
+
+        try:
+            self.coldretainload()
+        except FileNotFoundError as e:
+            print('Could not find coldretain file {}'.format(e))
+
         try:
             self.loop.run_forever()
         except KeyboardInterrupt:
@@ -185,10 +193,6 @@ class MainLoop():
         self.server.close()
         self.loop.run_until_complete(self.server.wait_closed())
         self.loop.close()
-        try:
-            self.coldretainload()
-        except FileNotFoundError as e:
-            print('Could not find coldretain file {}'.format(e))
 
     def coldretain(self, list_with_vars):
         cold_retain(self, list_with_vars)
