@@ -14,6 +14,7 @@ import asyncio
 from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
 from cold_retain import cold_retain, cold_retain_load
+from mqtt_sub_hb import uptime_coro
 
 
 class MainLoop():
@@ -38,6 +39,7 @@ class MainLoop():
         self.loop.create_task(self.async_20sec())
         self.loop.create_task(self.async_1440sec())
         self.loop.create_task(self.async_3600sec())
+        self.loop.create_task(uptime_coro())
 
         # Serve requests until CTRL+c is pressed
 
