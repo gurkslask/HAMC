@@ -28,6 +28,8 @@ class MainLoop():
         self.test_HAMC_Data = {'fyrtio': 40, 'tva': 2}
         self.socket_host = '0.0.0.0'
         self.socket_port = 5004
+        self.mqtt_fukt = 0
+        self.mqtt_temp = 0
         self.loop = asyncio.get_event_loop()
         # Each client connection will create a new protocol instance
         self.coro = self.loop.create_server(
@@ -180,6 +182,7 @@ class MainLoop():
                 (dt.time(9, 0), True)
         ]
 
+
         try:
             self.coldretainload()
         except FileNotFoundError as e:
@@ -303,6 +306,8 @@ class MainLoop():
             # Run timechannel check, if True, change the setpoint
             self.VS1_SV1_SP_Down = self.time_channel_VS1_SV1.check_state()
             self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
+            print(self.mqtt_fukt)
+            print(self.mqtt_temp)
 
     @asyncio.coroutine
     def async_1440sec(self):
