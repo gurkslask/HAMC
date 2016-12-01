@@ -43,7 +43,6 @@ class MainLoop():
 
         # Serve requests until CTRL+c is pressed
 
-
         # Declare IO Variables
         self.IOVariables = IOdef()
 
@@ -235,7 +234,6 @@ class MainLoop():
                 print('Something went wrong with the modbus!')
             self.coldretain(['ThreeDayTemp'])
 
-
     @asyncio.coroutine
     def async_20sec(self):
         while True:
@@ -269,7 +267,7 @@ class MainLoop():
                         ''').format(
                     time=dt.datetime.now(),
                     name=self.VS1_GT3.__class__,
-                   e=e)
+                    e=e)
                 # try:
                 # self.SUN_GT1.RunMainTemp()
                 # except Exception, e:
@@ -397,15 +395,12 @@ class MainLoop():
             print('Befintlig efter' + str(self.Komp.DictVarden))
 
 
-
-
 def main():
     ML = MainLoop()
     # threading.Thread(target=ML.FlaskLoop).start()
     # threading.Thread(target=ML.control_loop).start()
     # threading.Thread(target=ML.interaction_loop).start()
     # threading.Thread(target=ML.interact).start()
-
 
 
 if __name__ == '__main__':
