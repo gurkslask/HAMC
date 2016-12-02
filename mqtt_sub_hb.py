@@ -6,7 +6,7 @@ from hbmqtt.mqtt.constants import QOS_1
 
 
 @asyncio.coroutine
-def uptime_coro(fukt, temp):
+def uptime_coro(data_func):
     """Coroutine that talks to raspberry broker, yields if it gets data."""
     c = MQTTClient()
     topic_1 = 'kgrund/fukt'
@@ -22,12 +22,14 @@ def uptime_coro(fukt, temp):
     ])
     try:
         while True:
+            future = asyncio.Future()
+            future.add_done_callback(data_func)
             message = yield from c.deliver_message()
             packet = message.publish_packet
             print('%s => %s' % (
                 packet.variable_header.topic_name, str(packet.payload.data)
                 ))
-            fukt = str(packet.payload.data)
+            future.set_result(packet.payload.data)
         yield from c.unsubscribe([topic_1, topic_2])
         yield from c.disconnect()
     except ClientException as ce:

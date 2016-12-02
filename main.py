@@ -41,7 +41,7 @@ class MainLoop():
         self.loop.create_task(self.async_20sec())
         self.loop.create_task(self.async_1440sec())
         self.loop.create_task(self.async_3600sec())
-        self.loop.create_task(uptime_coro())
+        self.loop.create_task(uptime_coro(self.data_func2))
 
         # Serve requests until CTRL+c is pressed
 
@@ -398,6 +398,9 @@ class MainLoop():
             exec("{} = {}".format(data_request, write_value))
             print('Changed value in main {}'.format(data_request))
             print('Befintlig efter' + str(self.Komp.DictVarden))
+
+    def data_func2(self, future):
+        print(future.result())
 
 
 def main():
