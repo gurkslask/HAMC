@@ -400,7 +400,7 @@ class MainLoop():
             print('Befintlig efter' + str(self.Komp.DictVarden))
 
     def data_func2(self, future):
-        print(future.result())
+        print('Från huvudet {}'.format(future.result()))
 
 
 def main():
