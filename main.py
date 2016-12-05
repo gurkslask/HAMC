@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 # -*- coding: utf-8 -*-
 
 from ds1820class import DS1820, Write_temp
