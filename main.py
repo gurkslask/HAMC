@@ -401,10 +401,16 @@ class MainLoop():
             print('Befintlig efter' + str(self.Komp.DictVarden))
 
     def data_func2(self, future):
-        print('Från huvudet {}'.format(future.result()))
+        """Callback from mqtt_sub_hb coroutine."""
+        packet = future.result()
+        print('topic: {}, value: {}'.format(
+            packet.variable_header.topic_name,
+            packet.payload.data
+        ))
 
 
 def main():
+    """Mainloop."""
     ML = MainLoop()
     # threading.Thread(target=ML.FlaskLoop).start()
     # threading.Thread(target=ML.control_loop).start()
