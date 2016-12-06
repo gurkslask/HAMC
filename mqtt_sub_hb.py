@@ -29,7 +29,7 @@ def uptime_coro(data_func):
             print('%s => %s' % (
                 packet.variable_header.topic_name, str(packet.payload.data)
                 ))
-            future.set_result(packet.payload.data)
+            future.set_result(packet)
         yield from c.unsubscribe([topic_1, topic_2])
         yield from c.disconnect()
     except ClientException as ce:

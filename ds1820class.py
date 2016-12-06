@@ -1,17 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from datetime import datetime
 import time
-import os
 import sqlite3 as lite
 
 
 class DS1820():
-    '''Class for woking with a DS1820 temperature sensor
-    '''
+    """Class for woking with a DS1820 temperature sensor."""
 
     def __init__(self, address):
-        """Some initialization		"""
+        """Some initialization."""
         self.adress = address
         self.temp = 0.0
         self.interval = 0.0
@@ -24,8 +21,7 @@ class DS1820():
         self.Comment = ''
 
     def SetWriteInterval(self, interval):
-
-        'Can be removed, not needed, logging is in its own class'
+        """Can be removed, not needed, logging is in its own class"""
         self.interval = interval
         return self.interval
 
@@ -40,9 +36,9 @@ class DS1820():
         return self.LowAlarmTreshold
 
     def CheckTemperatureAlarm(self):
-        '''Checks whether any alarm are activated, if they are
+        """Checks whether any alarm are activated, if they are
         Check if they are higher/lower than the threshold, if they are
-        set the alarm'''
+        set the alarm"""
         if self.LowAlarmActivated:
             if self.temp < self.LowAlarmTreshold:
                 self.LowAlarm = True
@@ -59,10 +55,13 @@ class DS1820():
         '''Read the file that stores temperature data, use the folder
         with the provided adress. Dont forget to run modprobe on the pi'''
         try:
-            with open(r'/sys/bus/w1/devices/' + self.adress + r'/w1_slave', 'r') as tempfile:
+            with open(
+                    r'/sys/bus/w1/devices/' + self.adress + r'/w1_slave', 'r'
+            ) as tempfile:
                 data = tempfile.read()  # Read the whole file
                 if 'YES' in data:
-                    temp_pos = data.find('t=')  # Look for t, this is where the temperature is
+                    temp_pos = data.find('t=')
+                    # Look for t, this is where the temperature is
                     data = data[temp_pos + 2:]  # remove 't='
                     data = float(data) / 1000  # insert comma,
                     self.temp = data
@@ -71,7 +70,7 @@ class DS1820():
             print('File not found: \n {} \ n at {}'.format(e, '%H-%M-%S'))
 
     def RunMainTemp(self):
-        '''This is where the magic happens'''
+        """This is where the magic happens"""
         self.ReadTemp()
 
         self.CheckTemperatureAlarm()
@@ -84,9 +83,9 @@ class DS1820():
 
 
 class Write_temp():
-    ''' A class that writes the actual value and time into a file
+    """ A class that writes the actual value and time into a file
     that changes every 24 hours
-    Value of the signal and name that is should be stored'''
+    Value of the signal and name that is should be stored"""
 
     def __init__(self, value, name):
         self.value = value
@@ -104,13 +103,13 @@ class Write_temp():
         with conn:
             cur = conn.cursor()
 
-            #If the key doesnt exist, create one
+            # If the key doesnt exist, create one
             if self.name in self.name_dikt:
                 pass
             else:
                 self.name_dikt[self.name] = self.name
 
-            #Check if the column exists, if it doesnt create a new one
+            # Check if the column exists, if it doesnt create a new one
             try:
                 cur.execute('select * from {}'.format(
                     str(self.name_dikt[self.name])))
@@ -119,7 +118,7 @@ class Write_temp():
                     CREATE TABLE {} (Time TEXT, Temp REAL)'''.format(
                             str(self.name_dikt[self.name])))
 
-            cur.execute("INSERT INTO {} VALUES({},{})".format(
+            cur.execute('INSERT INTO {} VALUES({},{})'.format(
                 str(self.name_dikt[self.name]),
                 int(time.time()),
                 str(self.value)))
