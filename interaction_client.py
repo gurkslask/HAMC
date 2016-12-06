@@ -1,6 +1,5 @@
 #! /usr/bin/python3
 
-import pickle
 from connect_to_socket import call_server
 
 main_menu_string = '''
@@ -9,8 +8,10 @@ Home-automation menu:
                 2. Show values
                 3. Show weather
                 5. Change nightsink temperature
+                6. Show mqtt
                 0. Exit
 '''
+
 
 def change_nightsink():
     try:
@@ -20,10 +21,12 @@ def change_nightsink():
     finally:
         call_server({'w': [['self.Komp.value_to_lower', nightsink]]})
 
+
 def show_weather():
     message = {'r': ['Weather_State']}
     message = call_server(message)
     print(message['Weather_State'])
+
 
 def show_values():
     message = {'r': ['VS1_GT1',
@@ -35,7 +38,8 @@ def show_values():
                      'Komp',
                      'Komp.value_to_lower',
                      'ThreeDayTemp'
-    ]}
+                    ]
+    }
     message = call_server(message)
     print('GT1 {0:.1f}'.format(message['VS1_GT1']['PV']))
     print('GT2 {0:.1f}'.format(message['VS1_GT2']['PV']))
@@ -66,11 +70,20 @@ def change_sp():
         except SyntaxError as e:
             print('Invalid values entered, {}'.format(e))
 
+
+def show_mqtt():
+    """Print mqtt value dict."""
+    message = {'r': ['mqtt_values']}
+    message = call_server(message)
+    (print(i + message[i] for i in message))
+
+
 choices = {
     "1": change_sp,
     "2": show_values,
     "3": show_weather,
     "5": change_nightsink,
+    "6": show_mqtt,
     "0": exit
 }
 

@@ -42,7 +42,7 @@ class MainLoop():
         self.loop.create_task(self.async_20sec())
         self.loop.create_task(self.async_1440sec())
         self.loop.create_task(self.async_3600sec())
-        self.loop.create_task(uptime_coro(self.data_func2))
+        self.loop.create_task(uptime_coro(self.mqtt_callback))
 
         # Serve requests until CTRL+c is pressed
 
@@ -183,6 +183,8 @@ class MainLoop():
                 (dt.time(9, 0), True)
         ]
 
+        # A dictionary to store mqtt values in
+        self.mqtt_values = {}
 
         try:
             self.coldretainload()
@@ -386,27 +388,33 @@ class MainLoop():
             'IOVariables': {'IOVar': self.IOVariables},
             'update_from_flask': False,
             'update_from_main': False,
-            'Komp.value_to_lower': {'value_to_lower': self.Komp.value_to_lower},
+            'Komp.value_to_lower': {
+                'value_to_lower': self.Komp.value_to_lower},
             'Weather_State': {'Weather_State': self.Weather_State},
-            'ThreeDayTemp': {'ThreeDayTemp': self.ThreeDayTemp}
+            'ThreeDayTemp': {'ThreeDayTemp': self.ThreeDayTemp},
+            'mqtt_values': {'mqtt_values': self.mqtt_values}
         }
         if read_or_write is 'r':
             return self.shared_dict[data_request]
         elif read_or_write is 'w':
-            print('Changing value in main data request {} writevalue {}'.format(data_request, write_value))
+            print(
+                    'Changing value in main data request {} writevalue {}'.format(
+                        data_request, write_value))
             print('Befintlig fore' + str(self.Komp.DictVarden))
             print('{} = {}'.format(data_request, write_value))
             exec("{} = {}".format(data_request, write_value))
             print('Changed value in main {}'.format(data_request))
             print('Befintlig efter' + str(self.Komp.DictVarden))
 
-    def data_func2(self, future):
+    def mqtt_callback(self, future):
         """Callback from mqtt_sub_hb coroutine."""
         packet = future.result()
         print('topic: {}, value: {}'.format(
             packet.variable_header.topic_name,
             packet.payload.data
         ))
+        self.mqtt_values[packet.variable_header.topic_name] = packet.payload.data
+
 
 
 def main():
