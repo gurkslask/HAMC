@@ -28,11 +28,14 @@ class EchoServerClientProtocol(asyncio.Protocol):
                 self.transport.write(pickle.dumps({'Done': 1}))
             elif read_or_write is 'r':
                 data_to_send = {}
+                print(message) 
                 for value_to_read in message[read_or_write]:
                     try:
                         data_to_send[value_to_read] = self.HAMC_data('r', value_to_read, None)
                     except KeyError:
                         data_to_send[value_to_read] = 'Keyerror'
+                    except TypeError as e:
+                        print(message, e)
                 self.transport.write(pickle.dumps(data_to_send))
 
         print('Close the client socket')
