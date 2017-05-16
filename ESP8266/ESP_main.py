@@ -9,7 +9,7 @@ from umqtt.simple import MQTTClient
 def main():
     """Measure and talk to MQTT broker."""
     d = DHT11(machine.Pin(0))
-    SERVER = '192.168.1.8'
+    SERVER = '192.168.1.19'
     CLIENT_ID = ubinascii.hexlify(machine.unique_id())
     TOPIC_HUMIDITY = b'kgrund/fukt'
     TOPIC_TEMPERATURE = b'kgrund/temp'

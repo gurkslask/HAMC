@@ -16,6 +16,7 @@ from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
 from cold_retain import cold_retain, cold_retain_load
 from mqtt_sub_hb import uptime_coro
+from mqtt import publish
 
 
 class MainLoop():
@@ -311,6 +312,7 @@ class MainLoop():
             self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
             print(self.mqtt_fukt)
             print(self.mqtt_temp)
+            publish(self.VS1_GT1.Name, self.VS1_GT1.temp)
 
     @asyncio.coroutine
     def async_1440sec(self):

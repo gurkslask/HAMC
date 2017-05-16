@@ -31,5 +31,5 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 if __name__ == '__main__':
-    client.connect_async('192.168.1.8', 1883, 60)
+    client.connect_async('192.168.1.19', 1883, 60)
     client.loop_forever()
