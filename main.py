@@ -67,16 +67,21 @@ class MainLoop():
         This is the sensor that measures
         the water temperature to the radiators'''
         self.VS1_GT1.Name = 'VS1_GT1'
+        self.VS1_GT1.interval = 0.3
         # Retur
         self.VS1_GT2 = DS1820('28-00000524056e')
         self.VS1_GT2.Comment = '''This is the sensor that measures
          the water temperature from the radiators'''
         self.VS1_GT2.Name = 'VS1_GT2'
+        self.VS1_GT2.interval = 0.3
+        # Retur
         # Ute
         self.VS1_GT3 = DS1820('28-0000052407e0')
         self.VS1_GT3.Comment = '''This is the sensor that measures
          the outdoor temperature'''
         self.VS1_GT3.Name = 'VS1_GT3'
+        self.VS1_GT3.interval = 0.3
+        # Retur
         # @Solar panels
         # self.SUN_GT1 = DS1820('28-00000523ab8e')
         # self.SUN_GT1.Comment = '''This is the sensor that measures
@@ -306,9 +311,15 @@ class MainLoop():
             self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
 
             # Publish to MQTT server
-            publish(self.VS1_GT1.Name, self.VS1_GT1.temp)
-            publish(self.VS1_GT2.Name, self.VS1_GT2.temp)
-            publish(self.VS1_GT3.Name, self.VS1_GT3.temp)
+            if self.VS1_GT1.LastTemperature - self.VS1_GT1.interval < self.VS1_GT1.temp > self.VS1_GT1.LastTemperature + self.VS1_GT1.interval:
+                publish(self.VS1_GT1.Name, self.VS1_GT1.temp)
+                self.VS1_GT1.LastTemperature = self.VS1_GT1.temp 
+            if self.VS1_GT2.LastTemperature - self.VS1_GT2.interval < self.VS1_GT2.temp > self.VS1_GT2.LastTemperature + self.VS1_GT2.interval:
+                publish(self.VS1_GT2.Name, self.VS1_GT2.temp)
+                self.VS1_GT2.LastTemperature = self.VS1_GT2.temp 
+            if self.VS1_GT3.LastTemperature - self.VS1_GT3.interval < self.VS1_GT3.temp > self.VS1_GT3.LastTemperature + self.VS1_GT3.interval:
+                publish(self.VS1_GT3.Name, self.VS1_GT3.temp)
+                self.VS1_GT3.LastTemperature = self.VS1_GT3.temp 
 
     @asyncio.coroutine
     def async_1440sec(self):

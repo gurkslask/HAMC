@@ -22,12 +22,8 @@ class DS1820():
         self.trend_func = Write_temp(self.temp, self.adress)
         self.Name = ''
         self.Comment = ''
+        self.LastTemperature = 0.0
 
-    def SetWriteInterval(self, interval):
-
-        'Can be removed, not needed, logging is in its own class'
-        self.interval = interval
-        return self.interval
 
     def SetHighThreshold(self, HighThreshold):
         self.HighAlarmActivated = True
