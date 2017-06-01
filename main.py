@@ -14,7 +14,7 @@ import asyncio
 from timechannel import timechannel
 from socket_server import EchoServerClientProtocol
 from cold_retain import cold_retain, cold_retain_load
-import mqtt
+from mqtt import publish_mqtt as publish
 
 
 class MainLoop():
@@ -306,9 +306,9 @@ class MainLoop():
             self.Komp.change_SP_lower(self.VS1_SV1_SP_Down)
 
             # Publish to MQTT server
-            mqtt.publish(self.VS1_GT1.Name, self.VS1_GT1.temp)
-            mqtt.publish(self.VS1_GT2.Name, self.VS1_GT2.temp)
-            mqtt.publish(self.VS1_GT3.Name, self.VS1_GT3.temp)
+            publish(self.VS1_GT1.Name, self.VS1_GT1.temp)
+            publish(self.VS1_GT2.Name, self.VS1_GT2.temp)
+            publish(self.VS1_GT3.Name, self.VS1_GT3.temp)
 
     @asyncio.coroutine
     def async_1440sec(self):
